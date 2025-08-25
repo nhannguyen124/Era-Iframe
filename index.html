@@ -82,42 +82,40 @@
   </div>
 
   <script>
-    const eraWidget = new EraWidget();
-    let configSPO2 = null;
-    let configHB = null;
-    let configBP = null;
-    let configTemp = null;
+  const eraWidget = new EraWidget({
+    token: "YOUR_PROJECT_TOKEN",
+    deviceId: "YOUR_DEVICE_ID"
+  });
 
-    eraWidget.onConfiguration((configuration) => {
-      configSPO2 = configuration.realtime_configs.find(config => config.name === 'SPO2');
-      configHB = configuration.realtime_configs.find(config => config.name === 'HB');
-      configBP = configuration.realtime_configs.find(config => config.name === 'BP');
-      configTemp = configuration.realtime_configs.find(config => config.name === 'TEMP');
-    });
+  let configSPO2 = null, configHB = null, configBP = null, configTemp = null;
 
-    eraWidget.onValues((values) => {
-      if (configSPO2 && values[configSPO2.id]) {
-        const SPO2Value = values[configSPO2.id].value;
-        document.getElementById('spo2Checkbox').checked = SPO2Value > 0;
-        document.getElementById('spo2').innerHTML = SPO2Value + '<span class="unit">%</span>';
-      }
-      if (configHB && values[configHB.id]) {
-        const HBValue = values[configHB.id].value;
-        document.getElementById('hbCheckbox').checked = HBValue > 0;
-        document.getElementById('heart').innerHTML = HBValue + '<span class="unit">bpm</span>';
-      }
-      if (configBP && values[configBP.id]) {
-        const BPValue = values[configBP.id].value;
-        document.getElementById('bpCheckbox').checked = BPValue > 0;
-        document.getElementById('bp').innerHTML = BPValue + '<span class="unit">mmHg</span>';
-      }
-      if (configTemp && values[configTemp.id]) {
-        const TempValue = values[configTemp.id].value;
-        document.getElementById('tempCheckbox').checked = TempValue > 0;
-        document.getElementById('temp').innerHTML = TempValue + '<span class="unit">°C</span>';
-      }
-    });
-    eraWidget.ready();
-  </script>
+  eraWidget.onConfiguration((configuration) => {
+    configSPO2 = configuration.realtime_configs.find(config => config.name === 'SPO2');
+    configHB = configuration.realtime_configs.find(config => config.name === 'HB');
+    configBP = configuration.realtime_configs.find(config => config.name === 'BP');
+    configTemp = configuration.realtime_configs.find(config => config.name === 'TEMP');
+  });
+
+  eraWidget.onValues((values) => {
+    if (configSPO2 && values[configSPO2.id]) {
+      const SPO2Value = values[configSPO2.id].value;
+      document.getElementById('spo2').innerHTML = SPO2Value + '<span class="unit">%</span>';
+    }
+    if (configHB && values[configHB.id]) {
+      const HBValue = values[configHB.id].value;
+      document.getElementById('heart').innerHTML = HBValue + '<span class="unit">bpm</span>';
+    }
+    if (configBP && values[configBP.id]) {
+      const BPValue = values[configBP.id].value;
+      document.getElementById('bp').innerHTML = BPValue + '<span class="unit">mmHg</span>';
+    }
+    if (configTemp && values[configTemp.id]) {
+      const TempValue = values[configTemp.id].value;
+      document.getElementById('temp').innerHTML = TempValue + '<span class="unit">°C</span>';
+    }
+  });
+
+  eraWidget.ready();
+</script>
 </body>
 </html>
