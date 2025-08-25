@@ -3,177 +3,121 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Era‑IoT Iframe – Cửa sổ hiển thị</title>
+  <script src="https://static.era.iot.vn/sdk/era-widget.js"></script>
+  <title>Bảng chỉ số sức khỏe</title>
   <style>
     :root {
       --bg: #0b1220;
-      --panel: #101828;
-      --panel-2: #111827;
       --text: #e5e7eb;
-      --muted: #9ca3af;
-      --accent: #4f46e5;
-      --accent-2: #22c55e;
-      --border: #1f2937;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 14px;
     }
-    html, body { height: 100%; }
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
     body {
-      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      font-family: Arial, sans-serif;
       background: radial-gradient(1200px 600px at 20% -10%, #1f2937 0%, #0b1220 60%), var(--bg);
       color: var(--text);
-      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .toolbar { position: fixed; inset: 16px auto auto 16px; display:flex; gap:8px; z-index: 50; }
-    .btn { cursor: pointer; border: 1px solid var(--border); background: linear-gradient(180deg, #1b2440, var(--panel)); color: var(--text); padding: 10px 14px; border-radius: 10px; box-shadow: var(--shadow); font-weight: 600; }
-    .btn:active { transform: translateY(1px); }
-
-    .window { position: fixed; top: 64px; left: 64px; width: 980px; height: 620px; min-width: 360px; min-height: 260px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); display: none; overflow: hidden; z-index: 40; }
-    .window.visible { display: grid; grid-template-rows: 44px 1fr; }
-    .titlebar { display:flex; align-items:center; gap:10px; padding: 0 12px; border-bottom: 1px solid var(--border); background: linear-gradient(180deg, #0f1629, var(--panel-2)); cursor: move; user-select: none; }
-    .titlebar .dot { width:10px; height:10px; border-radius:50%; }
-    .dot.red { background:#ef4444; }
-    .dot.yellow { background:#f59e0b; }
-    .dot.green { background:#22c55e; }
-    .title { font-size: 14px; color: var(--muted); font-weight: 600; letter-spacing:.2px; }
-    .spacer { flex:1; }
-    .iconbtn { appearance:none; border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:14px; padding:6px 8px; border-radius: 8px; }
-    .iconbtn:hover { color: var(--text); background: #0b1220; }
-
-    .content { position: relative; }
-    iframe { width: 100%; height: 100%; border: 0; background: #0b1220; }
-
-    /* Resize handle */
-    .resize { position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; cursor: nwse-resize; background: linear-gradient(135deg, transparent 50%, #334155 50%); }
-
-    /* Helper badge top-right */
-    .badge { position: fixed; top: 16px; right: 16px; background: #0b1220; border: 1px solid var(--border); padding: 10px 14px; border-radius: 12px; color: var(--muted); font-size: 13px; }
-    .badge code { color: var(--text); }
-
-    /* Hidden state for minimized */
-    .minimized { height: 44px !important; }
+    .grid {
+      display: flex;
+      gap: 20px;
+    }
+    .box {
+      width: 220px;
+      height: 300px; /* cao hơn */
+      background: #ffffff;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .label {
+      font-size: 16px;
+      color: #374151;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .value {
+      font-size: 36px;
+      color: #111827;
+      font-weight: bold;
+    }
+    .unit {
+      font-size: 18px;
+      color: #6b7280;
+      margin-left: 4px;
+    }
   </style>
 </head>
 <body>
-  <div class="toolbar">
-    <button id="openBtn" class="btn">Mở cửa sổ Era‑IoT</button>
+    <input type="checkbox" id="spo2Checkbox" style="display:none;">
+    <input type="checkbox" id="hbCheckbox" style="display:none;">
+    <input type="checkbox" id="bpCheckbox" style="display:none;">
+    <input type="checkbox" id="tempCheckbox" style="display:none;">
+
+  <div class="grid">
+    <div class="box">
+      <div class="label">Nhiệt độ</div>
+      <div class="value" id="temp">--<span class="unit">°C</span></div>
+    </div>
+    <div class="box">
+      <div class="label">Nhịp tim</div>
+      <div class="value" id="heart">--<span class="unit">bpm</span></div>
+    </div>
+    <div class="box">
+      <div class="label">SpO₂</div>
+      <div class="value" id="spo2">--<span class="unit">%</span></div>
+    </div>
+    <div class="box">
+      <div class="label">Huyết áp</div>
+      <div class="value" id="bp">--<span class="unit">mmHg</span></div>
+    </div>
   </div>
 
-  <div class="badge">Đặt URL hệ thống của bạn vào <code>ERA_IOT_URL</code> trong mã.</div>
-
-  <!-- Floating window with iframe -->
-  <section id="win" class="window" aria-label="Cửa sổ Era‑IoT" role="dialog">
-    <header id="dragHandle" class="titlebar">
-      <div class="dot red" title="Đóng" id="closeBtn" role="button" aria-label="Đóng"></div>
-      <div class="dot yellow" title="Thu nhỏ" id="minBtn" role="button" aria-label="Thu nhỏ"></div>
-      <div class="dot green" title="Phóng to" id="maxBtn" role="button" aria-label="Phóng to"></div>
-      <span class="title">Era‑IoT – Dashboard</span>
-      <span class="spacer"></span>
-      <button class="iconbtn" id="reloadBtn" title="Tải lại khung">⟳</button>
-      <button class="iconbtn" id="popoutBtn" title="Mở trong tab mới">↗</button>
-    </header>
-    <div class="content">
-      <iframe id="eraFrame"
-              src=""
-              loading="lazy"
-              fetchpriority="low"
-              referrerpolicy="no-referrer"
-              sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-downloads"
-              allow="fullscreen; clipboard-read; clipboard-write; geolocation; microphone; camera">
-      </iframe>
-      <div class="resize" id="resizeHandle" title="Kéo để đổi kích thước"></div>
-    </div>
-  </section>
-
   <script>
-    // === CẤU HÌNH ===
-    const ERA_IOT_URL = "https://app.e-ra.io/dev-mode/dashboards/13497";
+    const eraWidget = new EraWidget();
+    let configSPO2 = null;
+    let configHB = null;
+    let configBP = null;
+    let configTemp = null;
 
-    const frame = document.getElementById('eraFrame');
-    frame.src = ERA_IOT_URL;
-
-    // Điều khiển hiển thị cửa sổ nổi
-    const win = document.getElementById('win');
-    const openBtn = document.getElementById('openBtn');
-    const closeBtn = document.getElementById('closeBtn');
-    const minBtn   = document.getElementById('minBtn');
-    const maxBtn   = document.getElementById('maxBtn');
-    const reloadBtn= document.getElementById('reloadBtn');
-    const popoutBtn= document.getElementById('popoutBtn');
-    const dragHandle = document.getElementById('dragHandle');
-    const resizeHandle = document.getElementById('resizeHandle');
-
-    openBtn.addEventListener('click', () => {
-      win.classList.add('visible');
-    });
-    closeBtn.addEventListener('click', () => {
-      win.classList.remove('visible');
+    eraWidget.onConfiguration((configuration) => {
+      configSPO2 = configuration.realtime_configs.find(config => config.name === 'SPO2');
+      configHB = configuration.realtime_configs.find(config => config.name === 'HB');
+      configBP = configuration.realtime_configs.find(config => config.name === 'BP');
+      configTemp = configuration.realtime_configs.find(config => config.name === 'TEMP');
     });
 
-    let minimized = false;
-    minBtn.addEventListener('click', () => {
-      minimized = !minimized;
-      win.classList.toggle('minimized', minimized);
-    });
-
-    let maximized = false;
-    const prevRect = { x: 64, y: 64, w: 980, h: 620 };
-    maxBtn.addEventListener('click', () => {
-      if (!maximized) {
-        const rect = win.getBoundingClientRect();
-        prevRect.x = rect.left; prevRect.y = rect.top; prevRect.w = rect.width; prevRect.h = rect.height;
-        win.style.left = '0px'; win.style.top = '0px'; win.style.width = '100vw'; win.style.height = '100vh';
-      } else {
-        win.style.left = prevRect.x + 'px';
-        win.style.top = prevRect.y + 'px';
-        win.style.width = prevRect.w + 'px';
-        win.style.height = prevRect.h + 'px';
+    eraWidget.onValues((values) => {
+      if (configSPO2 && values[configSPO2.id]) {
+        const SPO2Value = values[configSPO2.id].value;
+        document.getElementById('spo2Checkbox').checked = SPO2Value > 0;
+        document.getElementById('spo2').innerHTML = SPO2Value + '<span class="unit">%</span>';
       }
-      maximized = !maximized;
+      if (configHB && values[configHB.id]) {
+        const HBValue = values[configHB.id].value;
+        document.getElementById('hbCheckbox').checked = HBValue > 0;
+        document.getElementById('heart').innerHTML = HBValue + '<span class="unit">bpm</span>';
+      }
+      if (configBP && values[configBP.id]) {
+        const BPValue = values[configBP.id].value;
+        document.getElementById('bpCheckbox').checked = BPValue > 0;
+        document.getElementById('bp').innerHTML = BPValue + '<span class="unit">mmHg</span>';
+      }
+      if (configTemp && values[configTemp.id]) {
+        const TempValue = values[configTemp.id].value;
+        document.getElementById('tempCheckbox').checked = TempValue > 0;
+        document.getElementById('temp').innerHTML = TempValue + '<span class="unit">°C</span>';
+      }
     });
-
-    reloadBtn.addEventListener('click', () => frame.contentWindow?.location.reload());
-    popoutBtn.addEventListener('click', () => window.open(ERA_IOT_URL, '_blank', 'noopener,noreferrer'));
-
-    // Kéo thả di chuyển cửa sổ
-    (function enableDrag(el, handle) {
-      let offsetX = 0, offsetY = 0, dragging = false;
-      handle.addEventListener('pointerdown', (e) => {
-        if (e.target.closest('.iconbtn')) return;
-        dragging = true; handle.setPointerCapture(e.pointerId);
-        const rect = el.getBoundingClientRect();
-        offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
-      });
-      handle.addEventListener('pointermove', (e) => {
-        if (!dragging) return;
-        const x = Math.max(0, Math.min(window.innerWidth - 100, e.clientX - offsetX));
-        const y = Math.max(0, Math.min(window.innerHeight - 44, e.clientY - offsetY));
-        el.style.left = x + 'px'; el.style.top = y + 'px';
-      });
-      handle.addEventListener('pointerup', (e) => { dragging = false; handle.releasePointerCapture(e.pointerId); });
-    })(win, dragHandle);
-
-    // Kéo để đổi kích thước
-    (function enableResize(el, handle) {
-      let resizing = false, startX = 0, startY = 0, startW = 0, startH = 0;
-      handle.addEventListener('pointerdown', (e) => {
-        resizing = true; handle.setPointerCapture(e.pointerId);
-        const rect = el.getBoundingClientRect();
-        startX = e.clientX; startY = e.clientY; startW = rect.width; startH = rect.height;
-      });
-      handle.addEventListener('pointermove', (e) => {
-        if (!resizing) return;
-        const newW = Math.max(360, startW + (e.clientX - startX));
-        const newH = Math.max(260, startH + (e.clientY - startY));
-        el.style.width = newW + 'px'; el.style.height = newH + 'px';
-      });
-      handle.addEventListener('pointerup', (e) => { resizing = false; handle.releasePointerCapture(e.pointerId); });
-    })(win, resizeHandle);
-
-    frame.addEventListener('error', () => {
-      console.warn('Không thể tải Era‑IoT trong iframe. Có thể máy chủ chặn X-Frame-Options.');
-    });
+    eraWidget.ready();
   </script>
 </body>
 </html>
-
