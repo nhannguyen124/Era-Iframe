@@ -57,7 +57,6 @@
 <body>
   <div class="toolbar">
     <button id="openBtn" class="btn">Mở cửa sổ Era‑IoT</button>
-    <button id="embedToggle" class="btn" title="Ẩn/hiện vùng nhúng bên dưới">Ẩn/hiện khung nhúng</button>
   </div>
 
   <div class="badge">Đặt URL hệ thống của bạn vào <code>ERA_IOT_URL</code> trong mã.</div>
@@ -86,27 +85,12 @@
     </div>
   </section>
 
-  <!-- Optional embedded panel (non-floating) -->
-  <section id="embed" style="position:fixed; left:16px; right:16px; bottom:16px; height: 280px; border:1px solid var(--border); border-radius: 12px; overflow:hidden; background: var(--panel); box-shadow: var(--shadow);">
-    <iframe id="eraEmbed"
-            src=""
-            loading="lazy"
-            referrerpolicy="no-referrer"
-            sandbox="allow-scripts allow-forms allow-same-origin allow-popups allow-downloads"
-            allow="fullscreen">
-    </iframe>
-  </section>
-
   <script>
     // === CẤU HÌNH ===
-    // TODO: Thay bằng URL thực tế của Era‑IoT (ví dụ: https://your-era-iot.example.com/dashboard?token=...) 
     const ERA_IOT_URL = "https://example.com/era-iot/dashboard";
 
-    // Áp vào cả 2 khung
     const frame = document.getElementById('eraFrame');
-    const embed = document.getElementById('eraEmbed');
     frame.src = ERA_IOT_URL;
-    embed.src = ERA_IOT_URL;
 
     // Điều khiển hiển thị cửa sổ nổi
     const win = document.getElementById('win');
@@ -118,7 +102,6 @@
     const popoutBtn= document.getElementById('popoutBtn');
     const dragHandle = document.getElementById('dragHandle');
     const resizeHandle = document.getElementById('resizeHandle');
-    const embedToggle = document.getElementById('embedToggle');
 
     openBtn.addEventListener('click', () => {
       win.classList.add('visible');
@@ -156,7 +139,7 @@
     (function enableDrag(el, handle) {
       let offsetX = 0, offsetY = 0, dragging = false;
       handle.addEventListener('pointerdown', (e) => {
-        if (e.target.closest('.iconbtn')) return; // không kéo khi bấm nút
+        if (e.target.closest('.iconbtn')) return;
         dragging = true; handle.setPointerCapture(e.pointerId);
         const rect = el.getBoundingClientRect();
         offsetX = e.clientX - rect.left; offsetY = e.clientY - rect.top;
@@ -187,14 +170,6 @@
       handle.addEventListener('pointerup', (e) => { resizing = false; handle.releasePointerCapture(e.pointerId); });
     })(win, resizeHandle);
 
-    // Ẩn/hiện khung nhúng dưới cùng
-    let embedVisible = true;
-    embedToggle.addEventListener('click', () => {
-      embedVisible = !embedVisible;
-      document.getElementById('embed').style.display = embedVisible ? 'block' : 'none';
-    });
-
-    // Phòng khi trang đích chặn frame
     frame.addEventListener('error', () => {
       console.warn('Không thể tải Era‑IoT trong iframe. Có thể máy chủ chặn X-Frame-Options.');
     });
