@@ -79,26 +79,27 @@
   <!-- Era IoT SDK -->
   <script src="https://unpkg.com/@eohjsc/era-widget@1.1.3/dist/index.min.js"></script>
   <script>
-    const eraWidget = new EraWidget({
-      token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",   // token của bạn
-      deviceId: "15794"                               // deviceId của bạn
-    });
+window.onload = function () {
+  const eraWidget = new EraWidget({
+    token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
+    deviceId: "15794"
+  });
 
-    eraWidget.init({
-      needRealtimeConfigs: true,
-      needHistoryConfigs: true,
-      needActions: false,
-      maxRealtimeConfigsCount: 4,   // mình cần 4 chỉ số
-      maxHistoryConfigsCount: 1,
-      minRealtimeConfigsCount: 0,
+  eraWidget.init({
+    needRealtimeConfigs: true,
+    needHistoryConfigs: true,
+    needActions: false,
+    maxRealtimeConfigsCount: 4,
+    maxHistoryConfigsCount: 1,
+    minRealtimeConfigsCount: 0,
 
-      // callback khi nhận cấu hình
-      onConfiguration: (configuration) => {
-        console.log("Config nhận được:", configuration);
-      },
+    onConfiguration: (configuration) => {
+      console.log("Config nhận được:", configuration);
+    },
 
-      // callback khi nhận giá trị mới
-     eraWidget.onValues((values) => {
+    onValues: (values) => {
+      console.log("Values nhận được:", values);
+
       if (values["V0"]) {
         document.getElementById('temp').innerHTML = values["V0"].value + '<span class="unit">°C</span>';
       }
@@ -111,11 +112,14 @@
       if (values["V3"]) {
         document.getElementById('bp').innerHTML = values["V3"].value + '<span class="unit">mmHg</span>';
       }
-    });
-  </script>
+    }
+  });
+}
+</script>
 
 </body>
 </html>
+
 
 
 
