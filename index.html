@@ -79,42 +79,30 @@
 
 <script>
   const eraWidget = new EraWidget({
-    token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85", // 🔑 Mã xác thực (Token)
-    deviceId: "13497"  // 📟 ID thiết bị
+    token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // token của bạn
+    deviceId: "13497" // deviceId của Unit
   });
 
-  let configTemp = null;
-  let configHeart = null;
-  let configSpO2 = null;
-  let configBP = null;
-
-  // Nhận cấu hình từ ERA
-  eraWidget.onConfiguration((configuration) => {
-    configTemp  = configuration.realtime_configs.find(c => c.name === 'temp');
-    configHeart = configuration.realtime_configs.find(c => c.name === 'heart');
-    configSpO2  = configuration.realtime_configs.find(c => c.name === 'spo2');
-    configBP    = configuration.realtime_configs.find(c => c.name === 'bp');
-  });
-
-  // Nhận giá trị realtime từ ERA
   eraWidget.onValues((values) => {
-    if (configTemp && values[configTemp.id]) {
-      document.getElementById('temp').innerHTML = values[configTemp.id].value + '<span class="unit">°C</span>';
+    if (values["V0"]) {
+      document.getElementById('temp').innerHTML = values["V0"].value + '<span class="unit">°C</span>';
     }
-    if (configHeart && values[configHeart.id]) {
-      document.getElementById('heart').innerHTML = values[configHeart.id].value + '<span class="unit">bpm</span>';
+    if (values["V1"]) {
+      document.getElementById('spo2').innerHTML = values["V1"].value + '<span class="unit">%</span>';
     }
-    if (configSpO2 && values[configSpO2.id]) {
-      document.getElementById('spo2').innerHTML = values[configSpO2.id].value + '<span class="unit">%</span>';
+    if (values["V2"]) {
+      document.getElementById('heart').innerHTML = values["V2"].value + '<span class="unit">bpm</span>';
     }
-    if (configBP && values[configBP.id]) {
-      document.getElementById('bp').innerHTML = values[configBP.id].value + '<span class="unit">mmHg</span>';
+    if (values["V3"]) {
+      document.getElementById('bp').innerHTML = values["V3"].value + '<span class="unit">mmHg</span>';
     }
   });
 
   eraWidget.ready();
 </script>
 
+
 </body>
 </html>
+
 
