@@ -75,39 +75,31 @@
       <div class="value" id="bp">--<span class="unit">mmHg</span></div>
     </div>
   </div>
- <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
-<script>
-  const eraWidget = new EraWidget({
-    token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
-    deviceId: "15794"
-  });
 
-  eraWidget.onValues((values) => {
-    if (values["V0"]) {
-      document.getElementById('temp').innerHTML = values["V0"].value + '<span class="unit">°C</span>';
-    }
-    if (values["V1"]) {
-      document.getElementById('spo2').innerHTML = values["V1"].value + '<span class="unit">%</span>';
-    }
-    if (values["V2"]) {
-      document.getElementById('heart').innerHTML = values["V2"].value + '<span class="unit">bpm</span>';
-    }
-    if (values["V3"]) {
-      document.getElementById('bp').innerHTML = values["V3"].value + '<span class="unit">mmHg</span>';
-    }
-  });
+  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
+  <script>
+    const eraWidget = new EraWidget({
+      token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
+      deviceId: "15794"
+    });
 
-  eraWidget.ready();
-</script>
+    eraWidget.onValues((values) => {
+      if (values["V0"]) {
+        document.getElementById('temp').innerHTML = values["V0"].value + '<span class="unit">°C</span>';
+      }
+      if (values["V1"]) {
+        document.getElementById('spo2').innerHTML = values["V1"].value + '<span class="unit">%</span>';
+      }
+      if (values["V2"]) {
+        document.getElementById('heart').innerHTML = values["V2"].value + '<span class="unit">bpm</span>';
+      }
+      if (values["V3"]) {
+        document.getElementById('bp').innerHTML = values["V3"].value + '<span class="unit">mmHg</span>';
+      }
+    });
 
-
-
+    eraWidget.ready();
+  </script>
 
 </body>
 </html>
-
-
-
-
-
-
