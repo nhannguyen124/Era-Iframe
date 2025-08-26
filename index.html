@@ -98,19 +98,24 @@
       },
 
       // callback khi nhận giá trị mới
-     onValues: (values) => {
-  console.log("Values nhận được:", values);
-
-  // Test cố định
-  document.getElementById('temp').innerHTML = 29 + '<span class="unit">°C</span>';
-  document.getElementById('spo2').innerHTML = 98 + '<span class="unit">%</span>';
-  document.getElementById('heart').innerHTML = 75 + '<span class="unit">bpm</span>';
-  document.getElementById('bp').innerHTML = "120/80" + '<span class="unit">mmHg</span>';
-}
+     eraWidget.onValues((values) => {
+      if (values["V0"]) {
+        document.getElementById('temp').innerHTML = values["V0"].value + '<span class="unit">°C</span>';
+      }
+      if (values["V1"]) {
+        document.getElementById('spo2').innerHTML = values["V1"].value + '<span class="unit">%</span>';
+      }
+      if (values["V2"]) {
+        document.getElementById('heart').innerHTML = values["V2"].value + '<span class="unit">bpm</span>';
+      }
+      if (values["V3"]) {
+        document.getElementById('bp').innerHTML = values["V3"].value + '<span class="unit">mmHg</span>';
+      }
     });
   </script>
 
 </body>
 </html>
+
 
 
