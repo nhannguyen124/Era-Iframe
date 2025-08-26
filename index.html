@@ -1,81 +1,87 @@
 <!doctype html>
-<html lang="vi">
+<html lang="vi" class="dark-style layout-menu-fixed layout-compact" dir="ltr" data-theme="theme-dark">
+
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bảng chỉ số sức khỏe</title>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+  <title>Dashboard Sức Khỏe</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- CSS Core -->
+  <link rel="stylesheet" href="assets/vendor/css/core.css" />
+  <link rel="stylesheet" href="assets/vendor/css/theme-default.css" />
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="assets/vendor/fonts/boxicons.css" />
   <style>
-    :root {
-      --bg: #0b1220;
-      --text: #e5e7eb;
-    }
-    html, body {
-      margin: 0;
-      height: 100%;
-    }
     body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 20% -10%, #1f2937 0%, #0b1220 60%), var(--bg);
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background: radial-gradient(1200px 600px at 20% -10%, #1f2937 0%, #0b1220 60%), #0b1220 !important;
+      color: #e5e7eb !important;
     }
-    .grid {
-      display: flex;
-      gap: 20px;
-    }
-    .box {
-      width: 220px;
-      height: 300px;
-      background: #ffffff;
-      border: 2px solid #e5e7eb;
+    .card {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: #e5e7eb;
       border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
     }
-    .label {
-      font-size: 16px;
-      color: #374151;
-      margin-bottom: 12px;
-      font-weight: 600;
-    }
-    .value {
-      font-size: 36px;
-      color: #111827;
-      font-weight: bold;
-    }
-    .unit {
-      font-size: 18px;
-      color: #6b7280;
-      margin-left: 4px;
+    .card-title, p, h4, small {
+      color: #f3f4f6 !important;
     }
   </style>
 </head>
-<body>
 
-  <div class="grid">
-    <div class="box">
-      <div class="label">Nhiệt độ</div>
-      <div class="value" id="temp">--<span class="unit">°C</span></div>
-    </div>
-    <div class="box">
-      <div class="label">Nhịp tim</div>
-      <div class="value" id="heart">--<span class="unit">bpm</span></div>
-    </div>
-    <div class="box">
-      <div class="label">SpO₂</div>
-      <div class="value" id="spo2">--<span class="unit">%</span></div>
-    </div>
-    <div class="box">
-      <div class="label">Huyết áp</div>
-      <div class="value" id="bp">--<span class="unit">mmHg</span></div>
+<body>
+  <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row">
+      <!-- Nhiệt độ -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <p class="mb-1">🌡 Nhiệt độ</p>
+            <h4 class="card-title mb-2" id="temp">-- °C</h4>
+          </div>
+        </div>
+      </div>
+      <!-- Nhịp tim -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <p class="mb-1">❤️ Nhịp tim</p>
+            <h4 class="card-title mb-2" id="heart">-- bpm</h4>
+          </div>
+        </div>
+      </div>
+      <!-- SpO₂ -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <p class="mb-1">🫁 SpO₂</p>
+            <h4 class="card-title mb-2" id="spo2">-- %</h4>
+          </div>
+        </div>
+      </div>
+      <!-- Huyết áp -->
+      <div class="col-md-3 mb-4">
+        <div class="card h-100">
+          <div class="card-body text-center">
+            <p class="mb-1">🩸 Huyết áp</p>
+            <h4 class="card-title mb-2" id="bp">-- mmHg</h4>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
+  <!-- Era Widget -->
   <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
   <script>
     const eraWidget = new EraWidget({
@@ -85,21 +91,21 @@
 
     eraWidget.onValues((values) => {
       if (values["V0"]) {
-        document.getElementById('temp').innerHTML = values["V0"].value + '<span class="unit">°C</span>';
+        document.getElementById('temp').innerHTML = values["V0"].value + " °C";
       }
       if (values["V1"]) {
-        document.getElementById('spo2').innerHTML = values["V1"].value + '<span class="unit">%</span>';
+        document.getElementById('spo2').innerHTML = values["V1"].value + " %";
       }
       if (values["V2"]) {
-        document.getElementById('heart').innerHTML = values["V2"].value + '<span class="unit">bpm</span>';
+        document.getElementById('heart').innerHTML = values["V2"].value + " bpm";
       }
       if (values["V3"]) {
-        document.getElementById('bp').innerHTML = values["V3"].value + '<span class="unit">mmHg</span>';
+        document.getElementById('bp').innerHTML = values["V3"].value + " mmHg";
       }
     });
 
     eraWidget.ready();
   </script>
-
 </body>
+
 </html>
