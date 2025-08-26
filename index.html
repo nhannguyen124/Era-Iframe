@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.0.14/src/index.js"></script>
   <title>Bảng chỉ số sức khỏe</title>
   <style>
     :root {
@@ -76,7 +75,7 @@
       <div class="value" id="bp">--<span class="unit">mmHg</span></div>
     </div>
   </div>
-
+ <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 <script>
   const eraWidget = new EraWidget({
     token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // token của bạn
@@ -84,17 +83,17 @@
   });
 
   eraWidget.onValues((values) => {
-    if (values["V0"]) {
-      document.getElementById('temp').innerHTML = values["V0"].value + '<span class="unit">°C</span>';
+    if (configTemp && values[configTemp.id]) {
+      document.getElementById('temp').innerHTML = values[configTemp.id].value + '<span class="unit">°C</span>';
     }
-    if (values["V1"]) {
-      document.getElementById('spo2').innerHTML = values["V1"].value + '<span class="unit">%</span>';
+    if (configHeart && values[configHeart.id]) {
+      document.getElementById('heart').innerHTML = values[configHeart.id].value + '<span class="unit">bpm</span>';
     }
-    if (values["V2"]) {
-      document.getElementById('heart').innerHTML = values["V2"].value + '<span class="unit">bpm</span>';
+    if (configSpO2 && values[configSpO2.id]) {
+      document.getElementById('spo2').innerHTML = values[configSpO2.id].value + '<span class="unit">%</span>';
     }
-    if (values["V3"]) {
-      document.getElementById('bp').innerHTML = values["V3"].value + '<span class="unit">mmHg</span>';
+    if (configBP && values[configBP.id]) {
+      document.getElementById('bp').innerHTML = values[configBP.id].value + '<span class="unit">mmHg</span>';
     }
   });
 
@@ -104,5 +103,6 @@
 
 </body>
 </html>
+
 
 
