@@ -81,34 +81,19 @@
     </div>
   </div>
 
-  <script>
+<script>
   const eraWidget = new EraWidget({
     token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
     deviceId: "15794"
   });
 
-  let configSPO2 = null, configHB = null, configBP = null, configTemp = null;
+  let configTemp = null;
 
   eraWidget.onConfiguration((configuration) => {
-    configSPO2 = configuration.realtime_configs.find(config => config.name === 'spo2');
-    configHB = configuration.realtime_configs.find(config => config.name === 'hb');
-    configBP = configuration.realtime_configs.find(config => config.name === 'bp');
     configTemp = configuration.realtime_configs.find(config => config.name === 'temp');
   });
 
   eraWidget.onValues((values) => {
-    if (configSPO2 && values[configSPO2.id]) {
-      const SPO2Value = values[configSPO2.id].value;
-      document.getElementById('spo2').innerHTML = SPO2Value + '<span class="unit">%</span>';
-    }
-    if (configHB && values[configHB.id]) {
-      const HBValue = values[configHB.id].value;
-      document.getElementById('heart').innerHTML = HBValue + '<span class="unit">bpm</span>';
-    }
-    if (configBP && values[configBP.id]) {
-      const BPValue = values[configBP.id].value;
-      document.getElementById('bp').innerHTML = BPValue + '<span class="unit">mmHg</span>';
-    }
     if (configTemp && values[configTemp.id]) {
       const TempValue = values[configTemp.id].value;
       document.getElementById('temp').innerHTML = TempValue + '<span class="unit">°C</span>';
@@ -117,5 +102,8 @@
 
   eraWidget.ready();
 </script>
+
+<div id="temp">-- °C</div>
+
 </body>
 </html>
