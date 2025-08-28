@@ -5,6 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bảng chỉ số sức khỏe</title>
     <style>
+
+
+
+          .value {
+    font-size: 36px;
+    color: #111827;
+    font-weight: bold;
+    text-align: center;   /* Căn giữa ngang */
+    line-height: 1.2;     /* Giảm khoảng cách dòng */
+  }
+  .value .unit {
+    display: block;       /* Xuống dòng */
+    font-size: 18px;
+    color: #6b7280;
+    margin-top: 6px;
+  }
+
+
+
         :root {
         --bg: #0b1220;
         --text: #e5e7eb;
@@ -123,10 +142,12 @@
         }
     })
     
-    temp.innerHTML = 36.5 + ' °C';
-    spo2.innerHTML = 98 + ' %';
-    hb.innerHTML = 79 + ' bpm';
-    bp.innerHTML = '120/60' + ' mmHg';
+    temp.innerHTML = '36.5 <span class="unit">°C</span>';
+    spo2.innerHTML = '98 <span class="unit">%</span>';
+    hb.innerHTML   = '79 <span class="unit">bpm</span>';
+    bp.innerHTML   = '120/60 <span class="unit">mmHg</span>';
+
+
     
     ;
 
