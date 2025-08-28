@@ -108,21 +108,27 @@
         console.log('Configuration received:', configuration);
         },
 
+
+    
+
+
         onValues: (values) => {
         
     const valueTemp = values[configTemp.id]?.value;
     const valueSPO2 = values[configSPO2.id]?.value;
     const valueHB = values[configHB.id]?.value;
     const valueBP = values[configBP.id]?.value;
-
+    
+    console.log("Values:", values);
+        }
+    })
+    
     temp.innerHTML = 36.5 + ' °C';
     spo2.innerHTML = 98 + ' %';
     hb.innerHTML = 79 + ' bpm';
     bp.innerHTML = '120/60' + ' mmHg';
     
-    console.log("Values:", values);
-        }
-    });
+    ;
 
     </script>
 
