@@ -1,169 +1,138 @@
-    <!doctype html>
-    <html lang="vi">
-    <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Bảng chỉ số sức khỏe</title>
-    <style>
-
-
-
-          .value {
-    font-size: 36px;
-    color: #111827;
-    font-weight: bold;
-    text-align: center;   /* Căn giữa ngang */
-    line-height: 1.2;     /* Giảm khoảng cách dòng */
-  }
-  .value .unit {
-    display: block;       /* Xuống dòng */
-    font-size: 18px;
-    color: #6b7280;
-    margin-top: 6px;
-  }
-
-
-
-        :root {
-        --bg: #0b1220;
-        --text: #e5e7eb;
-        }
-        html, body {
-        margin: 0;
-        height: 100%;
-        }
-        body {
-        font-family: Arial, sans-serif;
-        background: radial-gradient(1200px 600px at 20% -10%, #1f2937 0%, #0b1220 60%), var(--bg);
-        color: var(--text);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        }
-        .grid {
-        display: flex;
-        gap: 20px;
-        }
-        .box {
-        width: 220px;
-        height: 300px;
-        background: #ffffff;
-        border: 2px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        }
-        .label {
-        font-size: 16px;
-        color: #374151;
-        margin-bottom: 12px;
-        font-weight: 600;
-        }
-        .value {
-        font-size: 36px;
-        color: #111827;
-        font-weight: bold;
-        }
-        .unit {
-        font-size: 18px;
-        color: #6b7280;
-        margin-left: 4px;
-        }
-    </style>
-    </head>
-    <body>
-
-    <div class="grid">
-        <div class="box">
-        <div class="label">Nhiệt độ</div>
-        <div class="value" id="temp">--<span class="unit">°C</span></div>
-        </div>
-        <div class="box">
-        <div class="label">Nhịp tim</div>
-        <div class="value" id="heart">--<span class="unit">bpm</span></div>
-        </div>
-        <div class="box">
-        <div class="label">SpO₂</div>
-        <div class="value" id="spo2">--<span class="unit">%</span></div>
-        </div>
-        <div class="box">
-        <div class="label">Huyết áp</div>
-        <div class="value" id="bp">--<span class="unit">mmHg</span></div>
-        </div>
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bảng chỉ số sức khỏe</title>
+  <style>
+    .value {
+      font-size: 36px;
+      color: #111827;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .value .unit {
+      display: block;
+      font-size: 18px;
+      color: #6b7280;
+      margin-top: 6px;
+    }
+    :root {
+      --bg: #0b1220;
+      --text: #e5e7eb;
+    }
+    html, body {
+      margin: 0;
+      height: 100%;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% -10%, #1f2937 0%, #0b1220 60%), var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .grid {
+      display: flex;
+      gap: 20px;
+    }
+    .box {
+      width: 220px;
+      height: 300px;
+      background: #ffffff;
+      border: 2px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .label {
+      font-size: 16px;
+      color: #374151;
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .value {
+      font-size: 36px;
+      color: #111827;
+      font-weight: bold;
+    }
+    .unit {
+      font-size: 18px;
+      color: #6b7280;
+      margin-left: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid">
+    <div class="box">
+      <div class="label">Nhiệt độ</div>
+      <div class="value" id="temp">--<span class="unit">°C</span></div>
     </div>
+    <div class="box">
+      <div class="label">Nhịp tim</div>
+      <div class="value" id="heart">--<span class="unit">bpm</span></div>
+    </div>
+    <div class="box">
+      <div class="label">SpO₂</div>
+      <div class="value" id="spo2">--<span class="unit">%</span></div>
+    </div>
+    <div class="box">
+      <div class="label">Huyết áp</div>
+      <div class="value" id="bp">--<span class="unit">mmHg</span></div>
+    </div>
+  </div>
 
-    <!-- Era IoT SDK -->
-    <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>  
-    <script>
-    const temp = document.getElementById('temp');    // đúng với id trong HTML
+  <!-- Era IoT SDK -->
+  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>  
+  <script>
+    const temp = document.getElementById('temp');
     const spo2 = document.getElementById('spo2');
-    const hb   = document.getElementById('heart');   // đổi 'Nhiptim' thành 'heart'
-    const bp   = document.getElementById('bp');      // đổi 'huyetap' thành 'bp'
+    const hb   = document.getElementById('heart');
+    const bp   = document.getElementById('bp');
 
     let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
 
-
     const eraWidget = new EraWidget({
-        token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
-        deviceId: "15794"             
-        });
+      token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
+      deviceId: "15794"
+    });
+
     eraWidget.init({
-        needRealtimeConfigs: true,
-        needHistoryConfigs: true,
-        needActions: false,
-        maxRealtimeConfigsCount: 4,
-        maxHistoryConfigsCount: 1,
-        minRealtimeConfigsCount: 0,
+      needRealtimeConfigs: true,
+      needHistoryConfigs: true,
+      needActions: false,
+      maxRealtimeConfigsCount: 4,
+      maxHistoryConfigsCount: 1,
+      minRealtimeConfigsCount: 0,
 
-        onConfiguration: (configuration) => {
-        configTemp = configuration.realtime_configs[0];  // Lưu cấu hình nhiệt độ
-        configSPO2 = configuration.realtime_configs[1];  // Lưu cấu hình độ ẩm
-        configHB = configuration.realtime_configs[2];  // Lưu cấu hình đèn LED
-        configBP = configuration.realtime_configs[3];
-
+      onConfiguration: (configuration) => {
+        configTemp = configuration.realtime_configs[0];
+        configHB   = configuration.realtime_configs[1];
+        configSPO2 = configuration.realtime_configs[2];
+        configBP   = configuration.realtime_configs[3];
         console.log('Configuration received:', configuration);
-        },
+      },
 
+      onValues: (values) => {
+        const valueTemp = values[configTemp?.id]?.value;
+        const valueHB   = values[configHB?.id]?.value;
+        const valueSPO2 = values[configSPO2?.id]?.value;
+        const valueBP   = values[configBP?.id]?.value;
 
-    
+        if (valueTemp !== undefined) temp.innerHTML = `${valueTemp}<span class="unit">°C</span>`;
+        if (valueHB !== undefined)   hb.innerHTML   = `${valueHB}<span class="unit">bpm</span>`;
+        if (valueSPO2 !== undefined) spo2.innerHTML = `${valueSPO2}<span class="unit">%</span>`;
+        if (valueBP !== undefined)   bp.innerHTML   = `${valueBP}<span class="unit">mmHg</span>`;
 
-
-        onValues: (values) => {
-        
-    const valueTemp = values[configTemp.id]?.value;
-    const valueSPO2 = values[configSPO2.id]?.value;
-    const valueHB = values[configHB.id]?.value;
-    const valueBP = values[configBP.id]?.value;
-    
-    console.log("Values:", values);
-        }
-    })
-    
-    temp.innerHTML = '36.5 <span class="unit">°C</span>';
-    spo2.innerHTML = '98 <span class="unit">%</span>';
-    hb.innerHTML   = '79 <span class="unit">bpm</span>';
-    bp.innerHTML   = '120/60 <span class="unit">mmHg</span>';
-
-
-    
-    ;
-
-    </script>
-
-    </body>
-    </html>
-
-
-
-
-
-
-
-
-
-
-
-
+        console.log("Values:", values);
+      }
+    });
+  </script>
+</body>
+</html>
