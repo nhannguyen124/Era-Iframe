@@ -1,138 +1,264 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Bảng chỉ số sức khỏe</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Đăng nhập & Dashboard Sức khỏe (ERA IoT)</title>
   <style>
-    .value {
-      font-size: 36px;
-      color: #111827;
-      font-weight: bold;
-      text-align: center;
-      line-height: 1.2;
-    }
-    .value .unit {
-      display: block;
-      font-size: 18px;
-      color: #6b7280;
-      margin-top: 6px;
-    }
-    :root {
-      --bg: #0b1220;
-      --text: #e5e7eb;
-    }
-    html, body {
-      margin: 0;
-      height: 100%;
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
     }
     body {
-      font-family: Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 20% -10%, #1f2937 0%, #0b1220 60%), var(--bg);
-      color: var(--text);
+      background: linear-gradient(135deg, #74b9ff, #a29bfe);
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    .grid {
-      display: flex;
+    .container {
+      width: 360px;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+    }
+    h2 {
+      text-align: center;
+      color: #2d3436;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #dcdde1;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
+      transition: 0.3s;
+    }
+    input:focus, select:focus {
+      border-color: #0984e3;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #0984e3;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #74b9ff;
+    }
+    .switch {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .switch span {
+      color: #0984e3;
+      cursor: pointer;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      display: none;
+      text-align: center;
+      color: #2d3436;
+      width: 420px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 20px;
+      margin-top: 20px;
     }
-    .box {
-      width: 220px;
-      height: 300px;
-      background: #ffffff;
-      border: 2px solid #e5e7eb;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+    .card {
+      background: white;
+      padding: 25px 10px;
+      border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: 0.3s;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .icon {
+      font-size: 35px;
+      margin-bottom: 10px;
     }
     .label {
-      font-size: 16px;
-      color: #374151;
-      margin-bottom: 12px;
       font-weight: 600;
+      font-size: 14px;
+      color: #636e72;
     }
     .value {
-      font-size: 36px;
-      color: #111827;
+      font-size: 22px;
       font-weight: bold;
-    }
-    .unit {
-      font-size: 18px;
-      color: #6b7280;
-      margin-left: 4px;
+      color: #2d3436;
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
-  <div class="grid">
-    <div class="box">
-      <div class="label">Nhiệt độ</div>
-      <div class="value" id="temp">--<span class="unit">°C</span></div>
-    </div>
-    <div class="box">
-      <div class="label">Nhịp tim</div>
-      <div class="value" id="heart">--<span class="unit">bpm</span></div>
-    </div>
-    <div class="box">
-      <div class="label">SpO₂</div>
-      <div class="value" id="spo2">--<span class="unit">%</span></div>
-    </div>
-    <div class="box">
-      <div class="label">Huyết áp</div>
-      <div class="value" id="bp">--<span class="unit">mmHg</span></div>
+
+  <!-- Đăng nhập -->
+  <div class="container" id="loginBox">
+    <h2>Đăng nhập</h2>
+    <input type="text" id="loginName" placeholder="Họ và tên" />
+    <input type="password" id="loginPassword" placeholder="Mật khẩu" />
+    <button onclick="login()">Đăng nhập</button>
+    <div class="switch">
+      Chưa có tài khoản? <span onclick="toggleForm()">Đăng ký</span>
     </div>
   </div>
 
-  <!-- Era IoT SDK -->
-  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>  
+  <!-- Đăng ký -->
+  <div class="container" id="registerBox" style="display:none;">
+    <h2>Đăng ký</h2>
+    <input type="text" id="name" placeholder="Họ và tên" />
+    <input type="password" id="password" placeholder="Mật khẩu" />
+    <input type="number" id="age" placeholder="Tuổi" />
+    <select id="gender">
+      <option value="">Giới tính</option>
+      <option value="Nam">Nam</option>
+      <option value="Nữ">Nữ</option>
+      <option value="Khác">Khác</option>
+    </select>
+    <input type="number" id="weight" placeholder="Cân nặng (kg)" />
+    <input type="number" id="height" placeholder="Chiều cao (cm)" />
+    <input type="text" id="history" placeholder="Lịch sử bệnh lý" />
+    <input type="text" id="eyes" placeholder="Độ cận (nếu có)" />
+    <button onclick="register()">Đăng ký</button>
+    <div class="switch">
+      Đã có tài khoản? <span onclick="toggleForm()">Đăng nhập</span>
+    </div>
+  </div>
+
+  <!-- Dashboard (hiển thị dữ liệu ERA IoT) -->
+  <div class="container dashboard" id="dashboard">
+    <h2>Chỉ số sức khỏe (ERA IoT)</h2>
+    <div class="stats">
+      <div class="card">
+        <div class="icon">🌡️</div>
+        <div class="label">Nhiệt độ</div>
+        <div class="value" id="temp">-- °C</div>
+      </div>
+      <div class="card">
+        <div class="icon">❤️</div>
+        <div class="label">Nhịp tim</div>
+        <div class="value" id="heart">-- bpm</div>
+      </div>
+      <div class="card">
+        <div class="icon">💧</div>
+        <div class="label">SpO₂</div>
+        <div class="value" id="spo2">-- %</div>
+      </div>
+      <div class="card">
+        <div class="icon">🩸</div>
+        <div class="label">Huyết áp</div>
+        <div class="value" id="bp">-- mmHg</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== SCRIPT ========== -->
   <script>
-    const temp = document.getElementById('temp');
-    const spo2 = document.getElementById('spo2');
-    const hb   = document.getElementById('heart');
-    const bp   = document.getElementById('bp');
-
-    let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
-
-    const eraWidget = new EraWidget({
-      token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
-      deviceId: "15794"
-    });
-
-    eraWidget.init({
-      needRealtimeConfigs: true,
-      needHistoryConfigs: true,
-      needActions: false,
-      maxRealtimeConfigsCount: 4,
-      maxHistoryConfigsCount: 1,
-      minRealtimeConfigsCount: 0,
-
-      onConfiguration: (configuration) => {
-        configTemp = configuration.realtime_configs[0];
-        configHB   = configuration.realtime_configs[1];
-        configSPO2 = configuration.realtime_configs[2];
-        configBP   = configuration.realtime_configs[3];
-        console.log('Configuration received:', configuration);
-      },
-
-      onValues: (values) => {
-        const valueTemp = values[configTemp?.id]?.value;
-        const valueHB   = values[configHB?.id]?.value;
-        const valueSPO2 = values[configSPO2?.id]?.value;
-        const valueBP   = values[configBP?.id]?.value;
-
-        if (valueTemp !== undefined) temp.innerHTML = `${valueTemp}<span class="unit">°C</span>`;
-        if (valueHB !== undefined)   hb.innerHTML   = `${valueHB}<span class="unit">bpm</span>`;
-        if (valueSPO2 !== undefined) spo2.innerHTML = `${valueSPO2}<span class="unit">%</span>`;
-        if (valueBP !== undefined)   bp.innerHTML   = `${valueBP}<span class="unit">mmHg</span>`;
-
-        console.log("Values:", values);
+    function toggleForm() {
+      const loginBox = document.getElementById("loginBox");
+      const registerBox = document.getElementById("registerBox");
+      if (loginBox.style.display === "none") {
+        loginBox.style.display = "block";
+        registerBox.style.display = "none";
+      } else {
+        loginBox.style.display = "none";
+        registerBox.style.display = "block";
       }
-    });
+    }
+
+    function register() {
+      const name = document.getElementById("name").value.trim();
+      const password = document.getElementById("password").value.trim();
+      if (!name || !password) return alert("Vui lòng nhập đầy đủ họ tên và mật khẩu!");
+      const user = {
+        name,
+        password,
+        age: document.getElementById("age").value,
+        gender: document.getElementById("gender").value,
+        weight: document.getElementById("weight").value,
+        height: document.getElementById("height").value,
+        history: document.getElementById("history").value,
+        eyes: document.getElementById("eyes").value
+      };
+      localStorage.setItem("user_" + name, JSON.stringify(user));
+      alert("Đăng ký thành công!");
+      toggleForm();
+    }
+
+    function login() {
+      const name = document.getElementById("loginName").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const data = localStorage.getItem("user_" + name);
+      if (!data) return alert("Không tìm thấy người dùng!");
+      const user = JSON.parse(data);
+      if (user.password !== password) return alert("Sai mật khẩu!");
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("dashboard").style.display = "block";
+      connectEra();
+    }
+
+    // === ERA IoT DATA ===
+    function connectEra() {
+      const temp = document.getElementById('temp');
+      const spo2 = document.getElementById('spo2');
+      const hb   = document.getElementById('heart');
+      const bp   = document.getElementById('bp');
+
+      let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
+
+      const eraWidget = new EraWidget({
+        token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
+        deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
+      });
+
+      eraWidget.init({
+        needRealtimeConfigs: true,
+        needHistoryConfigs: true,
+        needActions: false,
+        maxRealtimeConfigsCount: 4,
+        maxHistoryConfigsCount: 1,
+
+        onConfiguration: (configuration) => {
+          configTemp = configuration.realtime_configs[0];
+          configHB   = configuration.realtime_configs[1];
+          configSPO2 = configuration.realtime_configs[2];
+          configBP   = configuration.realtime_configs[3];
+          console.log('Configuration:', configuration);
+        },
+
+        onValues: (values) => {
+          const valueTemp = values[configTemp?.id]?.value;
+          const valueHB   = values[configHB?.id]?.value;
+          const valueSPO2 = values[configSPO2?.id]?.value;
+          const valueBP   = values[configBP?.id]?.value;
+
+          if (valueTemp !== undefined) temp.innerHTML = `${valueTemp} °C`;
+          if (valueHB !== undefined)   hb.innerHTML   = `${valueHB} bpm`;
+          if (valueSPO2 !== undefined) spo2.innerHTML = `${valueSPO2} %`;
+          if (valueBP !== undefined)   bp.innerHTML   = `${valueBP} mmHg`;
+
+          console.log("Values:", values);
+        }
+      });
+    }
   </script>
+
+  <!-- ERA SDK -->
+  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>  
 </body>
 </html>
