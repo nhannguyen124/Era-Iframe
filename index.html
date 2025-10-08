@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ERA IoT - Dashboard Sức khỏe</title>
-  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
+  <title>Đăng nhập & Đăng ký</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: "Poppins", sans-serif; }
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
     body {
       background: linear-gradient(135deg, #74b9ff, #a29bfe);
       display: flex;
@@ -20,31 +23,77 @@
       background: white;
       border-radius: 20px;
       padding: 30px;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    h2 {
+      text-align: center;
+      color: #2d3436;
+      margin: 0;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #dcdde1;
+      border-radius: 10px;
+      font-size: 14px;
+      outline: none;
       transition: 0.3s;
     }
-    h2 { text-align: center; color: #2d3436; }
-    input, select {
-      width: 100%; padding: 12px; margin: 8px 0;
-      border: 1px solid #dcdde1; border-radius: 10px; outline: none;
-      transition: 0.3s;
+    input:focus {
+      border-color: #0984e3;
     }
-    input:focus, select:focus { border-color: #0984e3; }
     button {
-      width: 100%; padding: 12px; background: #0984e3;
-      color: white; border: none; border-radius: 10px;
-      cursor: pointer; font-size: 15px; transition: 0.3s;
+      width: 100%;
+      padding: 12px;
+      background: #0984e3;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.3s;
     }
-    button:hover { background: #74b9ff; }
-    .switch { text-align: center; margin-top: 10px; }
-    .switch span { color: #0984e3; cursor: pointer; }
+    button:hover {
+      background: #74b9ff;
+    }
+    .switch {
+      text-align: center;
+      margin-top: 10px;
+    }
+    .switch span {
+      color: #0984e3;
+      cursor: pointer;
+    }
 
     /* Dashboard */
     .dashboard {
       display: none;
       text-align: center;
       color: #2d3436;
-      width: 420px;
+      position: relative;
+    }
+    .header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    .header h2 {
+      margin: 0;
+    }
+    .setting-icon {
+      position: absolute;
+      right: 0;
+      font-size: 24px;
+      cursor: pointer;
+      color: #0984e3;
+      transition: 0.3s;
+    }
+    .setting-icon:hover {
+      color: #74b9ff;
     }
     .stats {
       display: grid;
@@ -58,11 +107,72 @@
       border-radius: 20px;
       box-shadow: 0 5px 15px rgba(0,0,0,0.1);
       transition: 0.3s;
+      cursor: pointer;
     }
-    .card:hover { transform: translateY(-5px); }
-    .icon { font-size: 35px; margin-bottom: 10px; }
-    .label { font-weight: 600; font-size: 14px; color: #636e72; }
-    .value { font-size: 22px; font-weight: bold; color: #2d3436; margin-top: 5px; }
+    .card:hover {
+      transform: translateY(-5px);
+    }
+    .icon {
+      font-size: 35px;
+      margin-bottom: 10px;
+    }
+    .label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #636e72;
+    }
+    .value {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2d3436;
+      margin-top: 5px;
+    }
+
+    /* Popup */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .popup-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+    }
+    .popup-content h3 {
+      margin-bottom: 15px;
+      color: #2d3436;
+    }
+    .close-btn {
+      margin-top: 10px;
+      background: #d63031;
+      color: #fff;
+    }
+    .close-btn:hover {
+      background: #ff7675;
+    }
+
+    /* Thông tin người dùng */
+    .info-box {
+      text-align: left;
+      margin-top: 10px;
+    }
+    .info-box p {
+      margin: 5px 0;
+      font-size: 15px;
+      color: #2d3436;
+    }
   </style>
 </head>
 <body>
@@ -84,7 +194,7 @@
     <input type="text" id="name" placeholder="Họ và tên" />
     <input type="password" id="password" placeholder="Mật khẩu" />
     <input type="number" id="age" placeholder="Tuổi" />
-    <select id="gender">
+    <select id="gender" style="width:100%;padding:12px;margin:8px 0;border:1px solid #dcdde1;border-radius:10px;">
       <option value="">Giới tính</option>
       <option value="Nam">Nam</option>
       <option value="Nữ">Nữ</option>
@@ -102,28 +212,66 @@
 
   <!-- Dashboard -->
   <div class="container dashboard" id="dashboard">
-    <h2>Chỉ số sức khỏe (ERA IoT)</h2>
+    <div class="header">
+      <h2>Chỉ số sức khỏe</h2>
+      <span class="setting-icon" onclick="openSettings()">⚙️</span>
+    </div>
+
     <div class="stats">
-      <div class="card"><div class="icon">🌡️</div><div class="label">Nhiệt độ</div><div class="value" id="temp">-- °C</div></div>
-      <div class="card"><div class="icon">❤️</div><div class="label">Nhịp tim</div><div class="value" id="heart">-- bpm</div></div>
-      <div class="card"><div class="icon">💧</div><div class="label">SpO₂</div><div class="value" id="spo2">-- %</div></div>
-      <div class="card"><div class="icon">🩸</div><div class="label">Huyết áp</div><div class="value" id="bp">-- mmHg</div></div>
+      <div class="card" onclick="showChart('Nhịp tim (BPM)')">
+        <div class="icon">❤️</div>
+        <div class="label">Nhịp tim (BPM)</div>
+        <div class="value"  id="heart">--</div>
+      </div>
+      <div class="card" onclick="showChart('SpO₂ (%)')">
+        <div class="icon">💧</div>
+        <div class="label">SpO₂ (%)</div>
+        <div class="value"  id="spo2">--</div>
+      </div>
+      <div class="card" onclick="showChart('Huyết áp (mmHg)')">
+        <div class="icon">🩺</div>
+        <div class="label">Huyết áp (mmHg)</div>
+        <div class="value"  id="bp">--</div>
+      </div>
+      <div class="card" onclick="showChart('Nhiệt độ (°C)')">
+        <div class="icon">🌡️</div>
+        <div class="label">Nhiệt độ (°C)</div>
+        <div class="value"  id="temp">--</div>
+      </div>
     </div>
   </div>
 
-  <!-- SCRIPT -->
+  <!-- Popup biểu đồ -->
+  <div class="popup" id="chartPopup">
+    <div class="popup-content">
+      <h3 id="chartTitle"></h3>
+      <canvas id="chartCanvas" width="400" height="250"></canvas>
+      <button class="close-btn" onclick="closeChart()">Đóng</button>
+    </div>
+  </div>
+
+  <!-- Popup thông tin cài đặt -->
+  <div class="popup" id="settingPopup">
+    <div class="popup-content">
+      <h3>Thông tin người dùng</h3>
+      <div class="info-box" id="userInfo"></div>
+      <button class="close-btn" onclick="logout()">Đăng xuất</button>
+      <button style="margin-top:8px;" onclick="closeSettings()">Đóng</button>
+    </div>
+  </div>
+
   <script>
     function toggleForm() {
-      const login = document.getElementById("loginBox");
-      const register = document.getElementById("registerBox");
-      login.style.display = login.style.display === "none" ? "block" : "none";
-      register.style.display = register.style.display === "none" ? "block" : "none";
+      const loginBox = document.getElementById("loginBox");
+      const registerBox = document.getElementById("registerBox");
+      loginBox.style.display = loginBox.style.display === "none" ? "block" : "none";
+      registerBox.style.display = registerBox.style.display === "none" ? "block" : "none";
     }
 
     function register() {
       const name = document.getElementById("name").value.trim();
       const password = document.getElementById("password").value.trim();
-      if (!name || !password) return alert("Vui lòng nhập đầy đủ!");
+      if (!name || !password) return alert("Vui lòng nhập đầy đủ họ tên và mật khẩu!");
       const user = {
         name,
         password,
@@ -139,6 +287,8 @@
       toggleForm();
     }
 
+    let currentUser = null;
+
     function login() {
       const name = document.getElementById("loginName").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
@@ -146,37 +296,162 @@
       if (!data) return alert("Không tìm thấy người dùng!");
       const user = JSON.parse(data);
       if (user.password !== password) return alert("Sai mật khẩu!");
+      currentUser = user;
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
-      connectERA();
+      connectEra();
     }
 
-    // =========== ERA IoT ===========
-    function connectERA() {
-      const temp = document.getElementById("temp");
-      const heart = document.getElementById("heart");
-      const spo2 = document.getElementById("spo2");
-      const bp = document.getElementById("bp");
+    // Dữ liệu mẫu
+    const sampleData = {
+      "Nhịp tim (BPM)": [72, 75, 78, 77, 80, 76],
+      "SpO₂ (%)": [97, 98, 98, 97, 99, 98],
+      "Huyết áp (mmHg)": {
+        "Tâm thu": [120, 122, 118, 121, 119, 123],
+        "Tâm trương": [80, 82, 79, 81, 80, 83]
+      },
+      "Nhiệt độ (°C)": [36.5, 36.6, 36.7, 36.6, 36.8, 36.7],
+    };
 
-      const era = new EraWidget({
-        token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85", // 🔑 Thay bằng token ERA của bạn
-        deviceId: "15794" // 🔧 ID thiết bị thật của bạn
+    let currentChart = null;
+
+    function showChart(type) {
+      const popup = document.getElementById("chartPopup");
+      const title = document.getElementById("chartTitle");
+      const ctx = document.getElementById("chartCanvas").getContext("2d");
+
+      title.textContent = "Lịch sử " + type;
+      popup.style.display = "flex";
+
+      if (currentChart) currentChart.destroy();
+
+      const labels = ["Lần 1", "Lần 2", "Lần 3", "Lần 4", "Lần 5", "Lần 6"];
+
+      if (type === "Huyết áp (mmHg)") {
+        currentChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [
+              {
+                label: "Tâm thu (SYS)",
+                data: sampleData["Huyết áp (mmHg)"]["Tâm thu"],
+                borderColor: 'red',
+                backgroundColor: 'rgba(255,0,0,0.1)',
+                tension: 0.3,
+                fill: true,
+                pointRadius: 5,
+                pointBackgroundColor: 'red'
+              },
+              {
+                label: "Tâm trương (DIA)",
+                data: sampleData["Huyết áp (mmHg)"]["Tâm trương"],
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0,0,255,0.1)',
+                tension: 0.3,
+                fill: true,
+                pointRadius: 5,
+                pointBackgroundColor: 'blue'
+              }
+            ]
+          },
+          options: {
+            scales: { y: { beginAtZero: false } }
+          }
+        });
+      } else {
+        currentChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels,
+            datasets: [{
+              label: type,
+              data: sampleData[type],
+              borderColor: '#0984e3',
+              backgroundColor: 'rgba(9,132,227,0.1)',
+              tension: 0.3,
+              fill: true,
+              pointRadius: 5,
+              pointBackgroundColor: '#0984e3'
+            }]
+          },
+          options: {
+            scales: { y: { beginAtZero: false } }
+          }
+        });
+      }
+    }
+
+    function closeChart() {
+      document.getElementById("chartPopup").style.display = "none";
+    }
+
+    function openSettings() {
+      const popup = document.getElementById("settingPopup");
+      const info = document.getElementById("userInfo");
+      if (!currentUser) return;
+      info.innerHTML = `
+        <p><b>Họ tên:</b> ${currentUser.name}</p>
+        <p><b>Tuổi:</b> ${currentUser.age}</p>
+        <p><b>Giới tính:</b> ${currentUser.gender}</p>
+        <p><b>Cân nặng:</b> ${currentUser.weight} kg</p>
+        <p><b>Chiều cao:</b> ${currentUser.height} cm</p>
+        <p><b>Bệnh lý:</b> ${currentUser.history}</p>
+        <p><b>Độ cận:</b> ${currentUser.eyes}</p>
+      `;
+      popup.style.display = "flex";
+    }
+
+    function closeSettings() {
+      document.getElementById("settingPopup").style.display = "none";
+    }
+
+    function logout() {
+      document.getElementById("dashboard").style.display = "none";
+      document.getElementById("loginBox").style.display = "block";
+      document.getElementById("settingPopup").style.display = "none";
+      currentUser = null;
+    }
+    function connectEra() {
+      const temp = document.getElementById('temp');
+      const spo2 = document.getElementById('spo2');
+      const hb   = document.getElementById('heart');
+      const bp   = document.getElementById('bp');
+
+      let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
+
+      const eraWidget = new EraWidget({
+        token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
+        deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
       });
 
-      era.init({
+      eraWidget.init({
         needRealtimeConfigs: true,
-        onConfiguration: (cfg) => {
-          console.log("Config:", cfg);
+        needHistoryConfigs: true,
+        needActions: false,
+        maxRealtimeConfigsCount: 4,
+        maxHistoryConfigsCount: 1,
+
+        onConfiguration: (configuration) => {
+          configTemp = configuration.realtime_configs[0];
+          configHB   = configuration.realtime_configs[1];
+          configSPO2 = configuration.realtime_configs[2];
+          configBP   = configuration.realtime_configs[3];
+          console.log('Configuration:', configuration);
         },
+
         onValues: (values) => {
-          const data = Object.values(values);
-          data.forEach(v => {
-            if (v.name.toLowerCase().includes("temp")) temp.textContent = `${v.value} °C`;
-            else if (v.name.toLowerCase().includes("spo2")) spo2.textContent = `${v.value} %`;
-            else if (v.name.toLowerCase().includes("heart")) heart.textContent = `${v.value} bpm`;
-            else if (v.name.toLowerCase().includes("bp")) bp.textContent = `${v.value} mmHg`;
-          });
-          console.log("Realtime:", values);
+          const valueTemp = values[configTemp?.id]?.value;
+          const valueHB   = values[configHB?.id]?.value;
+          const valueSPO2 = values[configSPO2?.id]?.value;
+          const valueBP   = values[configBP?.id]?.value;
+
+          if (valueTemp !== undefined) temp.innerHTML = `${valueTemp} °C`;
+          if (valueHB !== undefined)   hb.innerHTML   = `${valueHB} bpm`;
+          if (valueSPO2 !== undefined) spo2.innerHTML = `${valueSPO2} %`;
+          if (valueBP !== undefined)   bp.innerHTML   = `${valueBP} mmHg`;
+
+          console.log("Values:", values);
         }
       });
     }
