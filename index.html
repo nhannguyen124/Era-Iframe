@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Đăng nhập & Đăng ký</title>
+  <title>MSVitaSync - Sức khỏe thông minh</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * {
@@ -32,7 +32,7 @@
       color: #2d3436;
       margin: 0;
     }
-    input {
+    input, select {
       width: 100%;
       padding: 12px;
       margin: 8px 0;
@@ -42,9 +42,7 @@
       outline: none;
       transition: 0.3s;
     }
-    input:focus {
-      border-color: #0984e3;
-    }
+    input:focus, select:focus { border-color: #0984e3; }
     button {
       width: 100%;
       padding: 12px;
@@ -56,123 +54,64 @@
       font-size: 15px;
       transition: 0.3s;
     }
-    button:hover {
-      background: #74b9ff;
-    }
-    .switch {
-      text-align: center;
-      margin-top: 10px;
-    }
-    .switch span {
-      color: #0984e3;
-      cursor: pointer;
-    }
+    button:hover { background: #74b9ff; }
+    .switch { text-align: center; margin-top: 10px; }
+    .switch span { color: #0984e3; cursor: pointer; }
 
     /* Dashboard */
-    .dashboard {
-      display: none;
-      text-align: center;
-      color: #2d3436;
-      position: relative;
-    }
-    .header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: relative;
-    }
-    .header h2 {
-      margin: 0;
-    }
+    .dashboard { display: none; text-align: center; color: #2d3436; position: relative; }
+    .header { display: flex; justify-content: center; align-items: center; position: relative; }
+    .header h2 { margin: 0; }
     .setting-icon {
-      position: absolute;
-      right: 0;
-      font-size: 24px;
-      cursor: pointer;
-      color: #0984e3;
-      transition: 0.3s;
+      position: absolute; right: 0; font-size: 24px;
+      cursor: pointer; color: #0984e3; transition: 0.3s;
     }
-    .setting-icon:hover {
-      color: #74b9ff;
-    }
+    .setting-icon:hover { color: #74b9ff; }
+
     .stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin-top: 20px;
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 20px; margin-top: 20px;
     }
     .card {
-      background: white;
-      padding: 25px 10px;
-      border-radius: 20px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: 0.3s;
+      background: white; padding: 25px 10px; border-radius: 20px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1); transition: 0.3s;
       cursor: pointer;
     }
-    .card:hover {
-      transform: translateY(-5px);
-    }
-    .icon {
-      font-size: 35px;
-      margin-bottom: 10px;
-    }
-    .label {
-      font-weight: 600;
-      font-size: 14px;
-      color: #636e72;
-    }
-    .value {
-      font-size: 22px;
-      font-weight: bold;
-      color: #2d3436;
-      margin-top: 5px;
-    }
+    .card:hover { transform: translateY(-5px); }
+    .icon { font-size: 35px; margin-bottom: 10px; }
+    .label { font-weight: 600; font-size: 14px; color: #636e72; }
+    .value { font-size: 22px; font-weight: bold; color: #2d3436; margin-top: 5px; }
 
     /* Popup */
     .popup {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;
     }
     .popup-content {
-      background: #fff;
-      padding: 20px;
-      border-radius: 20px;
-      width: 90%;
-      max-width: 500px;
-      text-align: center;
+      background: #fff; padding: 20px; border-radius: 20px;
+      width: 95%; max-width: 900px; text-align: center;
       box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;
     }
-    .popup-content h3 {
-      margin-bottom: 15px;
-      color: #2d3436;
+    .chart-container { flex: 1 1 400px; height: 400px; }
+    .data-table {
+      flex: 1 1 300px; max-height: 400px; overflow-y: auto;
+      border: 1px solid #dfe6e9; border-radius: 10px;
     }
-    .close-btn {
-      margin-top: 10px;
-      background: #d63031;
-      color: #fff;
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      border-bottom: 1px solid #dfe6e9;
+      padding: 8px; font-size: 14px; text-align: center;
     }
-    .close-btn:hover {
-      background: #ff7675;
-    }
+    th { background: #74b9ff; color: white; position: sticky; top: 0; }
+    .status-normal { color: green; font-weight: bold; }
+    .status-high { color: red; font-weight: bold; }
+    .status-low { color: blue; font-weight: bold; }
+    .close-btn { margin-top: 10px; background: #d63031; color: #fff; }
+    .close-btn:hover { background: #ff7675; }
 
-    /* Thông tin người dùng */
-    .info-box {
-      text-align: left;
-      margin-top: 10px;
-    }
-    .info-box p {
-      margin: 5px 0;
-      font-size: 15px;
-      color: #2d3436;
-    }
+    .info-box { text-align: left; margin-top: 10px; }
+    .info-box p { margin: 5px 0; font-size: 15px; color: #2d3436; }
   </style>
 </head>
 <body>
@@ -183,9 +122,7 @@
     <input type="text" id="loginName" placeholder="Họ và tên" />
     <input type="password" id="loginPassword" placeholder="Mật khẩu" />
     <button onclick="login()">Đăng nhập</button>
-    <div class="switch">
-      Chưa có tài khoản? <span onclick="toggleForm()">Đăng ký</span>
-    </div>
+    <div class="switch">Chưa có tài khoản? <span onclick="toggleForm()">Đăng ký</span></div>
   </div>
 
   <!-- Đăng ký -->
@@ -194,7 +131,7 @@
     <input type="text" id="name" placeholder="Họ và tên" />
     <input type="password" id="password" placeholder="Mật khẩu" />
     <input type="number" id="age" placeholder="Tuổi" />
-    <select id="gender" style="width:100%;padding:12px;margin:8px 0;border:1px solid #dcdde1;border-radius:10px;">
+    <select id="gender">
       <option value="">Giới tính</option>
       <option value="Nam">Nam</option>
       <option value="Nữ">Nữ</option>
@@ -205,9 +142,7 @@
     <input type="text" id="history" placeholder="Lịch sử bệnh lý" />
     <input type="text" id="eyes" placeholder="Độ cận (nếu có)" />
     <button onclick="register()">Đăng ký</button>
-    <div class="switch">
-      Đã có tài khoản? <span onclick="toggleForm()">Đăng nhập</span>
-    </div>
+    <div class="switch">Đã có tài khoản? <span onclick="toggleForm()">Đăng nhập</span></div>
   </div>
 
   <!-- Dashboard -->
@@ -216,7 +151,6 @@
       <h2>Chỉ số sức khỏe</h2>
       <span class="setting-icon" onclick="openSettings()">⚙️</span>
     </div>
-
     <div class="stats">
       <div class="card" onclick="showChart('Nhịp tim (BPM)')">
         <div class="icon">❤️</div>
@@ -241,16 +175,30 @@
     </div>
   </div>
 
-  <!-- Popup biểu đồ -->
+  <!-- Popup Chart + Bảng dữ liệu -->
   <div class="popup" id="chartPopup">
     <div class="popup-content">
-      <h3 id="chartTitle"></h3>
-      <canvas id="chartCanvas" width="400" height="250"></canvas>
+      <h3 id="chartTitle" style="width:100%; text-align:center;"></h3>
+      <div class="chart-container">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+      <div class="data-table">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Thời gian</th>
+              <th>Giá trị</th>
+              <th>Trạng thái</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
       <button class="close-btn" onclick="closeChart()">Đóng</button>
     </div>
   </div>
 
-  <!-- Popup thông tin cài đặt -->
+  <!-- Popup Setting -->
   <div class="popup" id="settingPopup">
     <div class="popup-content">
       <h3>Thông tin người dùng</h3>
@@ -261,7 +209,7 @@
   </div>
 
   <script>
-    let sampleData = {};
+    let sampleData={};
     function toggleForm() {
       const loginBox = document.getElementById("loginBox");
       const registerBox = document.getElementById("registerBox");
@@ -274,8 +222,7 @@
       const password = document.getElementById("password").value.trim();
       if (!name || !password) return alert("Vui lòng nhập đầy đủ họ tên và mật khẩu!");
       const user = {
-        name,
-        password,
+        name, password,
         age: document.getElementById("age").value,
         gender: document.getElementById("gender").value,
         weight: document.getElementById("weight").value,
@@ -300,8 +247,7 @@
       currentUser = user;
       document.getElementById("loginBox").style.display = "none";
       document.getElementById("dashboard").style.display = "block";
-      const dulieu = JSON.parse(localStorage.getItem("user_" + name));
-    // Dữ liệu mẫu
+            const dulieu = JSON.parse(localStorage.getItem("user_" + name));
       sampleData = {
         "Nhịp tim (BPM)":dulieu.rate,
         "SpO₂ (%)": [97, 98, 98, 97, 99, 98],
@@ -315,78 +261,128 @@
     }
 
 
+
     let currentChart = null;
 
     function showChart(type) {
-      const popup = document.getElementById("chartPopup");
-      const title = document.getElementById("chartTitle");
-      const ctx = document.getElementById("chartCanvas").getContext("2d");
+  const popup = document.getElementById("chartPopup");
+  const title = document.getElementById("chartTitle");
+  const ctx = document.getElementById("chartCanvas").getContext("2d");
+  const tableBody = document.querySelector("#dataTable tbody");
+  title.textContent = "Lịch sử " + type;
+  popup.style.display = "flex";
+  if (currentChart) currentChart.destroy();
 
-      title.textContent = "Lịch sử " + type;
-      popup.style.display = "flex";
+  const labels = ["00:00", "01:00", "02:00", "03:00", "04:00", "05:00"];
+  let datasets = [];
 
-      if (currentChart) currentChart.destroy();
+  if (type === "Huyết áp (mmHg)") {
+    const sys = sampleData["Huyết áp (mmHg)"]["Tâm thu"];
+    const dia = sampleData["Huyết áp (mmHg)"]["Tâm trương"];
 
-      const labels = ["Lần 1", "Lần 2", "Lần 3", "Lần 4", "Lần 5", "Lần 6"];
+    // Định nghĩa ngưỡng bình thường
+    const sysUpper = 120, sysLower = 90;
+    const diaUpper = 80, diaLower = 60;
 
-      if (type === "Huyết áp (mmHg)") {
-        currentChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [
-              {
-                label: "Tâm thu (SYS)",
-                data: sampleData["Huyết áp (mmHg)"]["Tâm thu"],
-                borderColor: 'red',
-                backgroundColor: 'rgba(255,0,0,0.1)',
-                tension: 0.3,
-                fill: true,
-                pointRadius: 5,
-                pointBackgroundColor: 'red'
-              },
-              {
-                label: "Tâm trương (DIA)",
-                data: sampleData["Huyết áp (mmHg)"]["Tâm trương"],
-                borderColor: 'blue',
-                backgroundColor: 'rgba(0,0,255,0.1)',
-                tension: 0.3,
-                fill: true,
-                pointRadius: 5,
-                pointBackgroundColor: 'blue'
-              }
-            ]
-          },
-          options: {
-            scales: { y: { beginAtZero: false } }
-          }
-        });
-      } else {
-        currentChart = new Chart(ctx, {
-          type: 'line',
-          data: {
-            labels,
-            datasets: [{
-              label: type,
-              data: sampleData[type],
-              borderColor: '#0984e3',
-              backgroundColor: 'rgba(9,132,227,0.1)',
-              tension: 0.3,
-              fill: true,
-              pointRadius: 5,
-              pointBackgroundColor: '#0984e3'
-            }]
-          },
-          options: {
-            scales: { y: { beginAtZero: false } }
-          }
-        });
+    datasets = [
+      {
+        label: "Tâm thu (SYS)",
+        data: sys,
+        borderColor: "red",
+        backgroundColor: "rgba(255,0,0,0.1)",
+        tension: 0.3,
+        fill: true
+      },
+      {
+        label: "Tâm trương (DIA)",
+        data: dia,
+        borderColor: "blue",
+        backgroundColor: "rgba(0,0,255,0.1)",
+        tension: 0.3,
+        fill: true
+      },
+      // Các đường nét đứt: ngưỡng cao / thấp
+      {
+        label: "SYS cao (120)",
+        data: Array(labels.length).fill(sysUpper),
+        borderColor: "red",
+        borderDash: [6,6],
+        pointRadius: 0,
+        borderWidth: 1.5
+      },
+      {
+        label: "SYS thấp (90)",
+        data: Array(labels.length).fill(sysLower),
+        borderColor: "orange",
+        borderDash: [6,6],
+        pointRadius: 0,
+        borderWidth: 1.5
+      },
+      {
+        label: "DIA cao (80)",
+        data: Array(labels.length).fill(diaUpper),
+        borderColor: "blue",
+        borderDash: [6,6],
+        pointRadius: 0,
+        borderWidth: 1.5
+      },
+      {
+        label: "DIA thấp (60)",
+        data: Array(labels.length).fill("60"),
+        borderColor: "cyan",
+        borderDash: [6,6],
+        pointRadius: 0,
+        borderWidth: 1.5
       }
-    }
+    ];
 
-    function closeChart() {
-      document.getElementById("chartPopup").style.display = "none";
+    // Bảng dữ liệu
+    tableBody.innerHTML = labels.map((t, i) => {
+      const sysVal = sys[i];
+      const diaVal = dia[i];
+      let status = "Bình thường";
+      if (sysVal > sysUpper || diaVal > diaUpper) status = '<span class="status-high">Cao</span>';
+      else if (sysVal < sysLower || diaVal < diaLower) status = '<span class="status-low">Thấp</span>';
+      else status = '<span class="status-normal">Bình thường</span>';
+      return `<tr><td>${t}</td><td>${sysVal}/${diaVal} mmHg</td><td>${status}</td></tr>`;
+    }).join("");
+  } 
+  else {
+    let dataArr = sampleData[type];
+    let lower = 0, upper = 0;
+    if (type === "Nhịp tim (BPM)") { lower = 60; upper = 150; }
+    else if (type === "Nhiệt độ (°C)") { lower = 35.5; upper = 38; }
+    else if (type === "SpO₂ (%)") { lower = 95; upper = 100; }
+
+    datasets = [
+      { label: type, data: dataArr, borderColor: "#0984e3", backgroundColor: "rgba(9,132,227,0.1)", tension: 0.3, fill: true },
+      { label: "Ngưỡng cao (" + upper + ")", data: Array(6).fill(upper), borderColor: "red", borderDash: [6,6], pointRadius: 0 },
+      { label: "Ngưỡng thấp (" + lower + ")", data: Array(6).fill(lower), borderColor: "blue", borderDash: [6,6], pointRadius: 0 }
+    ];
+
+    tableBody.innerHTML = labels.map((t, i) => {
+      let val = dataArr[i];
+      let status = "";
+      if (val > upper) status = '<span class="status-high">Cao</span>';
+      else if (val < lower) status = '<span class="status-low">Thấp</span>';
+      else status = '<span class="status-normal">Bình thường</span>';
+      return `<tr><td>${t}</td><td>${val}</td><td>${status}</td></tr>`;
+    }).join("");
+  }
+
+  currentChart = new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: "top" } },
+      scales: { y: { beginAtZero: false } }
     }
+  });
+}
+
+
+    function closeChart() { document.getElementById("chartPopup").style.display = "none"; }
 
     function openSettings() {
       const popup = document.getElementById("settingPopup");
@@ -399,15 +395,11 @@
         <p><b>Cân nặng:</b> ${currentUser.weight} kg</p>
         <p><b>Chiều cao:</b> ${currentUser.height} cm</p>
         <p><b>Bệnh lý:</b> ${currentUser.history}</p>
-        <p><b>Độ cận:</b> ${currentUser.eyes}</p>
-      `;
+        <p><b>Độ cận:</b> ${currentUser.eyes}</p>`;
       popup.style.display = "flex";
     }
 
-    function closeSettings() {
-      document.getElementById("settingPopup").style.display = "none";
-    }
-
+    function closeSettings() { document.getElementById("settingPopup").style.display = "none"; }
     function logout() {
       document.getElementById("dashboard").style.display = "none";
       document.getElementById("loginBox").style.display = "block";
