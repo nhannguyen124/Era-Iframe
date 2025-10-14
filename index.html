@@ -236,6 +236,7 @@
           sysvalue:[],
           diavalue:[]
         },
+        thoigiando:[]
       };
       localStorage.setItem("user_" + name, JSON.stringify(user));
       alert("Đăng ký thành công!");
@@ -256,11 +257,11 @@
       document.getElementById("dashboard").style.display = "block";
             const dulieu = JSON.parse(localStorage.getItem("user_" + name));
       sampleData = {
-        "Nhịp tim (BPM)":dulieu.rate,
-        "SpO₂ (%)": [97, 98, 98, 97, 99, 98],
+        "Nhịp tim (BPM)":dulieu.heartRate,
+        "SpO₂ (%)": dulieu.Spo2value,
         "Huyết áp (mmHg)": {
-          "Tâm thu": [120, 122, 118, 121, 119, 123],
-          "Tâm trương": [80, 82, 79, 81, 80, 83]
+          "Tâm thu": duileu.bpvalue[0],
+          "Tâm trương": dulieu.bpvalue[1],
         },
         "Nhiệt độ (°C)": [36.5, 36.6, 36.7, 36.6, 36.8, 36.7],
     };
