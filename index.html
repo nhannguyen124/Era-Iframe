@@ -260,10 +260,10 @@
         "Nhịp tim (BPM)":dulieu.heartRate,
         "SpO₂ (%)": dulieu.Spo2value,
         "Huyết áp (mmHg)": {
-          "Tâm thu": duileu.bpvalue[0],
-          "Tâm trương": dulieu.bpvalue[1],
+          "Tâm thu": dulieu.bpvalue.sysvalue,
+          "Tâm trương": dulieu.bpvalue.diavalue,
         },
-        "Nhiệt độ (°C)": [36.5, 36.6, 36.7, 36.6, 36.8, 36.7],
+        "Nhiệt độ (°C)":dulieu.tempvalue,
     };
       connectEra();
     }
