@@ -626,26 +626,20 @@ let eraWidgetInstance = null;
 let eraConnected = false;
 
 function connectEra(){
+  // Replace these with your token / deviceId if you have Era access
+  const ERA_TOKEN = '1ced9c99-1cd3-45f6-98a1-82ea28141f85';
+  const ERA_DEVICE_ID = '15794';
 
   // If EraWidget exists (client SDK included on page), use it
   if(window.EraWidget){
     try{
-      const eraWidget = new EraWidget({
-        token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
-        deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
-      });
-      eraWidget.init({
+      eraWidgetInstance = new EraWidget({ token: ERA_TOKEN, deviceId: ERA_DEVICE_ID });
+      eraWidgetInstance.init({
         needRealtimeConfigs: true,
         needHistoryConfigs: false,
         needActions: false,
         maxRealtimeConfigsCount: 8,
-        onConfiguration: (conf) => { 
-           configTemp = configuration.realtime_configs[0];
-          configHB   = configuration.realtime_configs[1];
-          configSPO2 = configuration.realtime_configs[2];
-          configBP   = configuration.realtime_configs[3];
-          
-          console.log('Era configuration', conf); },
+        onConfiguration: (conf) => { console.log('Era configuration', conf); },
         onValues: (values) => {
           // Map based on your device realtime config ids; adapt if needed.
           // This assumes your realtime configs provide keys for HR, SPO2, BP, TEMP.
