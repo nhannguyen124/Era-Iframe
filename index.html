@@ -186,7 +186,7 @@
         <div class="card" data-type="hr">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div><div style="font-size:16px">❤️ Nhịp tim</div><div class="sub">BPM</div></div>
-            <div class="value" id="hrValue">--</div>
+            <div class="value" id="hr">--</div>
           </div>
           <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="hrTime">--</span></div>
         </div>
@@ -194,7 +194,7 @@
         <div class="card" data-type="spo2">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div><div style="font-size:16px">💨 SpO₂</div><div class="sub">%</div></div>
-            <div class="value" id="spo2Value">--</div>
+            <div class="value" id="spo2">--</div>
           </div>
           <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="spo2Time">--</span></div>
         </div>
@@ -202,7 +202,7 @@
         <div class="card" data-type="bp">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div><div style="font-size:16px">🩸 Huyết áp</div><div class="sub">mmHg</div></div>
-            <div class="value" id="bpValue">--</div>
+            <div class="value" id="bp">--</div>
           </div>
           <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="bpTime">--</span></div>
         </div>
@@ -210,7 +210,7 @@
         <div class="card" data-type="temp">
           <div style="display:flex;justify-content:space-between;align-items:center">
             <div><div style="font-size:16px">🌡️ Nhiệt độ</div><div class="sub">°C</div></div>
-            <div class="value" id="tempValue">--</div>
+            <div class="value" id="temp">--</div>
           </div>
           <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="tempTime">--</span></div>
         </div>
@@ -340,10 +340,10 @@ const modalTitle = document.getElementById('modalTitle');
 const modalTable = document.getElementById('modalTable');
 const rangeInfo = document.getElementById('rangeInfo');
 
-const hrValueEl = document.getElementById('hrValue');
-const spo2ValueEl = document.getElementById('spo2Value');
-const bpValueEl = document.getElementById('bpValue');
-const tempValueEl = document.getElementById('tempValue');
+const hrEl = document.getElementById('hr');
+const spo2El = document.getElementById('spo2');
+const bpEl = document.getElementById('bp');
+const tempEl = document.getElementById('temp');
 const hrTimeEl = document.getElementById('hrTime');
 const spo2TimeEl = document.getElementById('spo2Time');
 const bpTimeEl = document.getElementById('bpTime');
@@ -500,10 +500,10 @@ function setOverviewValues(){
   const lastSpo2 = hourlyData.spo2[23].value;
   const lastBp = hourlyData.bp[23].value;
   const lastTemp = hourlyData.temp[23].value;
-  hrValueEl.innerText = `${lastHr}`;
-  spo2ValueEl.innerText = `${lastSpo2}%`;
-  bpValueEl.innerText = `${lastBp}`;
-  tempValueEl.innerText = `${lastTemp}°C`;
+  hrEl.innerText = `${lastHr}`;
+  spo2El.innerText = `${lastSpo2}%`;
+  bpEl.innerText = `${lastBp}`;
+  tempEl.innerText = `${lastTemp}°C`;
   const now = new Date();
   const hh = String(now.getHours()).padStart(2,'0') + ':00';
   hrTimeEl.innerText = hh; spo2TimeEl.innerText = hh; bpTimeEl.innerText = hh; tempTimeEl.innerText = hh;
@@ -627,9 +627,6 @@ let eraConnected = false;
 
 function connectEra(){
 
-  // If EraWidget exists (client SDK included on page), use it
-  if(window.EraWidget){
-    try{
       const eraWidget = new EraWidget({
         token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
         deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
@@ -682,10 +679,7 @@ function connectEra(){
       });
       console.log('Era widget init called');
       return;
-    }catch(err){
-      console.warn('EraWidget init failed:', err);
     }
-  }
 
   // Fallback: simulated realtime updates (every 3s)
   console.log('EraWidget not available — using simulated realtime updates');
@@ -707,23 +701,22 @@ function connectEra(){
     hourlyData.bp.shift(); hourlyData.bp.push({time: new Date().toTimeString().slice(0,5), value: `${sys}/${dia}`, sys, dia});
     setOverviewValues();
   }, 3000);
-}
 
 /* ---------- UI update helpers ---------- */
 function updateHR(v){
-  hrValueEl.innerText = v;
+  hrEl.innerText = v;
   hrTimeEl.innerText = new Date().toTimeString().slice(0,5);
 }
 function updateSpO2(v){
-  spo2ValueEl.innerText = `${v}%`;
+  spo2El.innerText = `${v}%`;
   spo2TimeEl.innerText = new Date().toTimeString().slice(0,5);
 }
 function updateBP(s){
-  bpValueEl.innerText = s;
+  bpEl.innerText = s;
   bpTimeEl.innerText = new Date().toTimeString().slice(0,5);
 }
 function updateTemp(t){
-  tempValueEl.innerText = `${t}°C`;
+  tempEl.innerText = `${t}°C`;
   tempTimeEl.innerText = new Date().toTimeString().slice(0,5);
 }
 
@@ -744,4 +737,5 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
 
