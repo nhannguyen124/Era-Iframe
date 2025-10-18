@@ -3,668 +3,738 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MS VITA_SYNC - Dashboard mẫu</title>
+  <title>MS VITA_SYNC - Dashboard (ERA)</title>
 
-  <!-- Chart.js CDN -->
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <style>
     :root{
       --bg:#f6f8fb;
       --card:#ffffff;
-      --muted:#7b8b9a;
-      --accent:#2fc76b;
-      --danger:#ff6b6b;
-      --glass: rgba(255,255,255,0.7);
-      --radius:14px;
-      font-family: 'Inter', system-ui, Arial, sans-serif;
+      --muted:#6b7280;
+      --accent:#16a34a;
+      --accent-2:#0ea5e9;
+      --danger:#ef4444;
+      font-family: 'Poppins', system-ui, Arial, sans-serif;
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0;
-      background: linear-gradient(180deg,#edf2f7 0%, var(--bg) 100%);
-      color:#1f2937;
+      background: linear-gradient(180deg,#fbfdff 0%, var(--bg) 100%);
+      color:#0f172a;
       min-height:100vh;
-      padding:24px;
+      display:flex;align-items:center;justify-content:center;padding:28px;
     }
+    .app{width:100%;max-width:1200px}
 
-    /* Header */
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:20px;
+    /* Auth card */
+    .auth-wrap{display:flex;gap:24px;align-items:flex-start}
+    .auth-card{
+      width:420px;
+      background:var(--card);border-radius:16px;padding:20px;box-shadow:0 12px 40px rgba(10,20,40,.06);
     }
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{
-      width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#2fc76b,#12a3f5);
-      display:flex;align-items:center;justify-content:center;color:white;font-weight:700;
-    }
-    .device-info{
-      background:var(--card);
-      border-radius:12px;padding:12px 16px;box-shadow:0 6px 18px rgba(20,40,60,.06);
-      display:flex;align-items:center;gap:12px;
-    }
-    .device-info small{display:block;color:var(--muted);font-size:12px}
-    .device-info b{display:block;font-size:14px}
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+    .tabs{display:flex;gap:8px;margin:12px 0}
+    .tab{flex:1;padding:10px;border-radius:10px;text-align:center;background:#f1f5f9;cursor:pointer;font-weight:600}
+    .tab.active{background:linear-gradient(90deg,var(--accent-2),var(--accent));color:white}
 
-    /* Grid of cards */
-    .grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:16px;
-      margin-top:14px;
-    }
-    .card{
-      background:var(--card);
-      border-radius:16px;
-      padding:16px;
-      box-shadow: 0 8px 20px rgba(16,40,80,.06);
-      cursor:pointer;
-      transition:transform .14s ease, box-shadow .14s ease;
-      min-height:95px;
-      display:flex;flex-direction:column;justify-content:space-between;
-    }
-    .card:hover{ transform:translateY(-6px); box-shadow:0 18px 34px rgba(16,40,80,.08); }
-    .card .title{display:flex;align-items:center;gap:12px;font-weight:600}
-    .badge{font-size:12px;color:var(--muted)}
+    .auth-form{display:none;flex-direction:column;gap:8px}
+    .auth-form.active{display:flex}
+    input,textarea,select{padding:10px;border-radius:10px;border:1px solid #eef2f6;background:#fbfdff;font-size:14px}
+    .row{display:flex;gap:8px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;cursor:pointer}
+    .btn-primary{background:linear-gradient(90deg,var(--accent-2),var(--accent));color:white;font-weight:700}
+    .btn-ghost{background:transparent;border:1px solid #edf2f7;color:var(--muted)}
+
+    /* Dashboard */
+    .dashboard{display:none;margin-top:8px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .device-info{background:var(--card);border-radius:12px;padding:10px 14px;box-shadow:0 6px 18px rgba(20,40,60,.04);display:flex;align-items:center;gap:12px}
+
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(10,20,40,.04);cursor:pointer;transition:transform .12s}
+    .card:hover{transform:translateY(-6px)}
     .value{font-size:28px;font-weight:700}
     .sub{font-size:12px;color:var(--muted)}
 
-    /* layout main */
-    .main{
-      margin-top:20px;
-      display:flex;
-      gap:18px;
-      align-items:flex-start;
-    }
+    .main{display:flex;gap:18px;align-items:flex-start;margin-top:12px}
     .left{flex:1}
     .right{width:360px}
 
-    /* Table styles */
     table{width:100%;border-collapse:collapse}
     thead th{ text-align:left;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:1px solid #edf1f4}
-    tbody td{padding:10px 8px;border-bottom:1px solid #f1f5f8}
+    tbody td{padding:8px 8px;border-bottom:1px solid #f1f5f8}
     .status-normal{color:green;font-weight:600}
     .status-warn{color:orange;font-weight:600}
     .status-danger{color:var(--danger);font-weight:700}
 
-    /* Modal */
-    .modal-backdrop{
-      position:fixed;inset:0;background:rgba(12,20,30,.45);
-      display:none;align-items:center;justify-content:center;z-index:50;
-    }
-    .modal{
-      background:var(--card);border-radius:16px;padding:18px;width:92%;max-width:980px;box-shadow:0 30px 60px rgba(10,20,40,.4);
-      display:flex;gap:18px;align-items:flex-start;
-    }
-    .modal .chart-wrap{flex:1}
-    .modal .side{width:320px}
-    .modal .modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
-    .close-btn{background:#eee;border-radius:8px;padding:6px 8px;cursor:pointer}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(12,20,30,.45);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal{background:var(--card);border-radius:12px;padding:16px;width:92%;max-width:920px;box-shadow:0 30px 60px rgba(10,20,40,.4)}
 
-    /* popup settings */
-    .settings-form{display:flex;flex-direction:column;gap:10px}
-    .settings-form label{font-size:13px;color:var(--muted)}
-    .settings-form input{padding:10px;border-radius:10px;border:1px solid #e6eaf0;background:#fbfdff}
+    .profile-btn{padding:8px 10px;border-radius:10px;border:1px solid #eef2f6;background:white;cursor:pointer}
 
-    /* footer small nav */
-    .nav{
-      position:fixed;left:50%;transform:translateX(-50%);
-      bottom:14px;background:var(--card);padding:8px 20px;border-radius:40px;box-shadow:0 8px 20px rgba(10,20,40,.06);display:flex;gap:12px;align-items:center
-    }
-    .nav button{background:transparent;border:0;padding:8px 12px;border-radius:30px;cursor:pointer;color:var(--muted)}
-    .nav .active{background:#eefaf2;color:var(--accent);font-weight:700}
-
-    /* small screens */
-    @media (max-width:860px){
-      .main{flex-direction:column}
+    /* responsive */
+    @media (max-width:980px){
+      .auth-wrap{flex-direction:column;align-items:center}
       .right{width:100%}
       .grid{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">MV</div>
-      <div>
-        <div style="font-weight:700">MS VITA_SYNC</div>
-        <div style="font-size:13px;color:var(--muted)">Sức khỏe thông minh</div>
-      </div>
-    </div>
+  <div class="app">
 
-    <div style="display:flex;gap:10px;align-items:center">
-      <div class="device-info">
-        <div style="min-width:52px">
-          <small>Xin chào</small>
-          <b id="deviceId">R12M 70F2</b>
-        </div>
-        <div style="min-width:56px;text-align:right">
-          <small>Firmware</small>
-          <div style="font-weight:700">2.14</div>
-        </div>
-      </div>
-
-      <button id="settingsBtn" title="Cài đặt" style="padding:10px 12px;border-radius:12px;border:0;background:#fff;box-shadow:0 6px 16px rgba(16,40,80,.04);cursor:pointer">⚙️</button>
-      <button id="logoutBtn" title="Đăng xuất" style="padding:10px 12px;border-radius:12px;border:0;background:#fff;box-shadow:0 6px 16px rgba(16,40,80,.04);cursor:pointer">🔓</button>
-    </div>
-  </div>
-
-  <div class="grid left">
-    <div class="card" data-type="hr">
-      <div class="title"><div style="font-size:18px">❤️ Nhịp tim</div><div class="badge">BPM</div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div class="value" id="hr">--</div>
-          <div class="sub">Mặc định: 60 - 100 BPM</div>
-        </div>
-        <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="hrTime">--</span></div>
-      </div>
-    </div>
-
-    <div class="card" data-type="spo2">
-      <div class="title"><div style="font-size:18px">💨 SpO₂</div><div class="badge">%</div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div class="value" id="spo2">--</div>
-          <div class="sub">Mặc định cảnh báo: &lt; 94%</div>
-        </div>
-        <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="spo2Time">--</span></div>
-      </div>
-    </div>
-
-    <div class="card" data-type="bp">
-      <div class="title"><div style="font-size:18px">🩸 Huyết áp</div><div class="badge">mmHg</div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div class="value" id="bp">--</div>
-          <div class="sub">Hệ thống: 120/80 mmHg chuẩn</div>
-        </div>
-        <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="bpTime">--</span></div>
-      </div>
-    </div>
-
-    <div class="card" data-type="temp">
-      <div class="title"><div style="font-size:18px">🌡️ Nhiệt độ</div><div class="badge">°C</div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div class="value" id="temp">--</div>
-          <div class="sub">Nhiệt độ cơ thể</div>
-        </div>
-        <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="tempTime">--</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="main">
-    <div class="left" style="flex-basis:65%">
-      <div style="background:var(--card);padding:14px;border-radius:14px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-          <div style="font-weight:700">Tổng quan sức khỏe</div>
-          <div style="color:var(--muted);font-size:13px">Dữ liệu thời gian thực</div>
-        </div>
-        <div id="overviewText" style="color:var(--muted)">Click vào một chỉ số ở trên để xem biểu đồ theo giờ và bảng chi tiết.</div>
-      </div>
-    </div>
-
-    <div class="right">
-      <div style="background:var(--card);padding:12px;border-radius:14px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
-        <div style="font-weight:700;margin-bottom:8px">Lần đo gần đây</div>
-        <table>
-          <thead>
-            <tr><th>Thời gian</th><th>Chỉ số</th><th>Giá trị</th></tr>
-          </thead>
-          <tbody id="recentList">
-            <!-- rows -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal (chart + table) -->
-  <div id="modalBackdrop" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-      <div style="flex:1;min-width:300px">
-        <div class="modal-head">
+    <!-- AUTH + DASHBOARD in one file -->
+    <div id="authSection" class="auth-wrap">
+      <!-- left: auth -->
+      <div class="auth-card">
+        <div class="brand">
+          <div class="logo">MV</div>
           <div>
-            <div id="modalTitle" style="font-weight:800">Chi tiết</div>
-            <div id="modalSubtitle" style="color:var(--muted);font-size:13px">Biểu đồ theo giờ</div>
-          </div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <div id="rangeInfo" style="font-size:13px;color:var(--muted)"></div>
-            <div class="close-btn" id="closeModal">✖</div>
+            <div style="font-weight:700">MS VITA_SYNC</div>
+            <div style="font-size:13px;color:var(--muted)">Sức khỏe thông minh</div>
           </div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="lineChart" height="180"></canvas>
+
+        <div class="tabs">
+          <div id="tabLogin" class="tab active">Đăng nhập</div>
+          <div id="tabRegister" class="tab">Đăng ký</div>
+        </div>
+
+        <!-- login -->
+        <form id="loginForm" class="auth-form active">
+          <input id="loginUser" placeholder="Tên đăng nhập" autocomplete="username">
+          <div style="position:relative">
+            <input id="loginPass" type="password" placeholder="Mật khẩu" autocomplete="current-password">
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+            <button id="btnGuest" type="button" class="btn btn-ghost">Xem thử</button>
+            <button id="loginBtn" type="submit" class="btn btn-primary">Đăng nhập</button>
+          </div>
+          <div id="loginMessage" style="margin-top:8px"></div>
+        </form>
+
+        <!-- register -->
+        <form id="registerForm" class="auth-form" style="margin-top:6px">
+          <input id="regUser" placeholder="Tên đăng nhập">
+          <input id="regPass" type="password" placeholder="Mật khẩu">
+          <input id="regName" placeholder="Họ và tên">
+          <div class="row">
+            <input id="regAge" type="number" placeholder="Tuổi">
+            <input id="regGender" placeholder="Giới tính">
+          </div>
+          <div class="row">
+            <input id="regHeight" type="number" placeholder="Chiều cao (cm)">
+            <input id="regWeight" type="number" placeholder="Cân nặng (kg)">
+          </div>
+          <textarea id="regHistory" rows="2" placeholder="Tiền sử bệnh lý"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:8px">
+            <button id="registerBtn" type="button" class="btn btn-primary">Tạo tài khoản</button>
+          </div>
+          <div id="registerMessage" style="margin-top:8px"></div>
+        </form>
+      </div>
+
+      <!-- right: preview -->
+      <div style="flex:1;min-width:320px">
+        <div style="background:var(--card);padding:18px;border-radius:12px;box-shadow:0 12px 30px rgba(10,20,40,.04)">
+          <div style="font-weight:700;margin-bottom:6px">Demo / Hướng dẫn</div>
+          <div style="color:var(--muted);font-size:13px">- Dùng \"Xem thử\" để tạo tài khoản demo.<br>- Đăng ký để lưu hồ sơ vào localStorage.<br>- Sau khi đăng nhập, dashboard sẽ hiển thị và bắt đầu lấy dữ liệu từ Era nếu cấu hình.</div>
+          <hr style="margin:12px 0;border:none;border-top:1px solid #f1f5f8">
+          <div style="font-weight:700">Kết nối Era</div>
+          <div style="color:var(--muted);font-size:13px">Bạn cần cung cấp token & deviceId bên trong mã (connectEra) để nhận dữ liệu thật.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="logo" style="width:44px;height:44px;font-size:14px">MV</div>
+          <div>
+            <div style="font-weight:800">MS VITA_SYNC</div>
+            <div id="topSub" style="color:var(--muted);font-size:13px">Sức khỏe thông minh</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="text-align:right">
+            <div id="userGreet" style="font-weight:700">Xin chào</div>
+            <div id="userMeta" style="font-size:12px;color:var(--muted)"></div>
+          </div>
+          <button id="profileBtn" class="profile-btn">Hồ sơ</button>
+          <div class="device-info">
+            <div style="min-width:52px">
+              <small>Thiết bị</small>
+              <b id="deviceId">—</b>
+            </div>
+            <div style="min-width:56px;text-align:right">
+              <small>Firmware</small>
+              <div style="font-weight:700">—</div>
+            </div>
+          </div>
+          <button id="logoutBtn" class="btn btn-ghost">Đăng xuất</button>
         </div>
       </div>
 
-      <div class="side">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div style="font-weight:700" id="sideTitle">Bảng số liệu</div>
-          <button id="exportBtn" style="padding:6px 10px;border-radius:8px;border:0;background:#f1f7ff;cursor:pointer">Tải CSV</button>
+      <div class="grid">
+        <div class="card" data-type="hr">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">❤️ Nhịp tim</div><div class="sub">BPM</div></div>
+            <div class="value" id="hrValue">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="hrTime">--</span></div>
         </div>
 
-        <div style="height:330px;overflow:auto">
-          <table>
-            <thead><tr><th>Thời gian</th><th>Giá trị</th><th>Trạng thái</th></tr></thead>
-            <tbody id="modalTable"></tbody>
-          </table>
+        <div class="card" data-type="spo2">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">💨 SpO₂</div><div class="sub">%</div></div>
+            <div class="value" id="spo2Value">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="spo2Time">--</span></div>
+        </div>
+
+        <div class="card" data-type="bp">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">🩸 Huyết áp</div><div class="sub">mmHg</div></div>
+            <div class="value" id="bpValue">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="bpTime">--</span></div>
+        </div>
+
+        <div class="card" data-type="temp">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">🌡️ Nhiệt độ</div><div class="sub">°C</div></div>
+            <div class="value" id="tempValue">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="tempTime">--</span></div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="left">
+          <div style="background:var(--card);padding:14px;border-radius:12px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div style="font-weight:700">Tổng quan sức khỏe</div>
+              <div style="color:var(--muted);font-size:13px">Dữ liệu thời gian thực</div>
+            </div>
+            <div id="overviewText" style="color:var(--muted)">Nhấn một ô trên để xem chi tiết.</div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div style="background:var(--card);padding:12px;border-radius:12px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
+            <div style="font-weight:700;margin-bottom:8px">Lần đo gần đây</div>
+            <table><thead><tr><th>Thời gian</th><th>Chỉ số</th><th>Giá trị</th></tr></thead><tbody id="recentList"></tbody></table>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Settings popup -->
-  <div id="settingsBackdrop" class="modal-backdrop" style="align-items:flex-start;padding-top:60px">
-    <div class="modal" style="max-width:560px;flex-direction:column">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div><div style="font-weight:800">Cài đặt tài khoản</div><div style="color:var(--muted);font-size:13px">Thông tin cá nhân & ngưỡng</div></div>
-        <div class="close-btn" id="closeSettings">✖</div>
-      </div>
-      <form id="settingsForm" class="settings-form">
-        <label>Họ tên <input type="text" id="inputName" required></label>
-        <label>Số điện thoại <input type="tel" id="inputPhone"></label>
-        <label>Email <input type="email" id="inputEmail"></label>
-
-        <div style="display:flex;gap:8px">
-          <label style="flex:1">Ngưỡng SpO₂ (cảnh báo nếu <) <input id="thrSpo2" type="number" min="80" max="100"></label>
-          <label style="flex:1">Ngưỡng HR cao (>) <input id="thrHrHigh" type="number" min="60" max="200"></label>
+    <!-- modal chart -->
+    <div id="modalBackdrop" class="modal-backdrop">
+      <div class="modal">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div>
+              <div id="modalTitle" style="font-weight:800"></div>
+              <div id="modalSubtitle" style="color:var(--muted);font-size:13px">Biểu đồ theo giờ</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div id="rangeInfo" style="font-size:13px;color:var(--muted)"></div>
+              <div class="close-btn" id="closeModal">✖</div>
+            </div>
+          </div>
+          <div style="height:280px"><canvas id="lineChart"></canvas></div>
         </div>
-
-        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
-          <button type="button" id="cancelSettings" style="padding:8px 12px;border-radius:10px;border:0;background:#f2f5f8;cursor:pointer">Huỷ</button>
-          <button type="submit" style="padding:8px 12px;border-radius:10px;border:0;background:var(--accent);color:white;cursor:pointer">Lưu</button>
+        <div style="width:320px;padding-left:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700">Bảng số liệu</div>
+            <button id="exportBtn" class="btn">Tải CSV</button>
+          </div>
+          <div style="height:260px;overflow:auto">
+            <table><thead><tr><th>Thời gian</th><th>Giá trị</th><th>Trạng thái</th></tr></thead><tbody id="modalTable"></tbody></table>
+          </div>
         </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Logout confirm -->
-  <div id="logoutBackdrop" class="modal-backdrop" style="align-items:center;justify-content:center">
-    <div class="modal" style="max-width:420px;flex-direction:column">
-      <div style="font-weight:800;margin-bottom:8px">Xác nhận đăng xuất</div>
-      <div style="color:var(--muted);margin-bottom:14px">Bạn có chắc muốn đăng xuất khỏi tài khoản này không?</div>
-      <div style="display:flex;gap:8px;justify-content:flex-end">
-        <button class="close-btn" id="cancelLogout">Huỷ</button>
-        <button id="confirmLogout" style="padding:8px 12px;border-radius:10px;border:0;background:var(--danger);color:white;cursor:pointer">Đăng xuất</button>
       </div>
     </div>
-  </div>
 
-  <!-- bottom nav -->
-  <div class="nav" aria-hidden="true">
-    <button>🏠 Tổng quan</button>
-    <button class="active">🔵 Smart Ring</button>
-    <button>➕</button>
-    <button>💬</button>
-    <button>👤 Cá nhân</button>
+    <!-- profile modal -->
+    <div id="profileBackdrop" class="modal-backdrop">
+      <div class="modal" style="max-width:520px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><div style="font-weight:800">Hồ sơ người dùng</div><div style="color:var(--muted);font-size:13px">Xem / chỉnh thông tin</div></div>
+          <div class="close-btn" id="closeProfile">✖</div>
+        </div>
+        <form id="profileForm" style="display:flex;flex-direction:column;gap:8px">
+          <input id="pfName" placeholder="Họ và tên">
+          <div class="row">
+            <input id="pfAge" type="number" placeholder="Tuổi">
+            <input id="pfGender" placeholder="Giới tính">
+          </div>
+          <div class="row">
+            <input id="pfHeight" type="number" placeholder="Chiều cao (cm)">
+            <input id="pfWeight" type="number" placeholder="Cân nặng (kg)">
+          </div>
+          <textarea id="pfHistory" rows="2" placeholder="Tiền sử bệnh lý"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:8px">
+            <button type="button" id="pfCancel" class="btn btn-ghost">Huỷ</button>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 
 <script>
 /*
-  Mô tả:
-  - Dữ liệu mẫu hourlyData = { hr:[], spo2:[], bp:[], temp:[] } length 24
-  - Click card => mở modal, render chart + table
-  - Settings lưu vào localStorage
+  All-in-one:
+  - Auth (register/login) saved to localStorage (mv_users, mv_current_user)
+  - Dashboard (shows hr, spo2, bp, temp)
+  - connectEra(): if EraWidget exists, uses it; otherwise fallback to simulated realtime
+  - Chart modal, CSV export
 */
 
-(function(){
-  // ---------- sample data generator ----------
-  function makeHourlySeries(base,variation,min,max,round=0){
-    const arr=[];
-    for(let h=0;h<24;h++){
-      // smooth random around base, with slight trend
-      const trend = Math.sin((h/24)*Math.PI*2)*variation*0.4;
-      const noise = (Math.random()*2-1)*variation;
-      let v = base + trend + noise;
-      v = Math.max(min, Math.min(max, v));
-      if(round) v = Math.round(v);
-      else v = Math.round(v*10)/10;
-      arr.push({time: `${String(h).padStart(2,'0')}:00`, value: v});
-    }
-    return arr;
+/* ---------- storage helpers ---------- */
+function loadUsers(){ try{ return JSON.parse(localStorage.getItem('mv_users')||'{}'); }catch(e){return{};} }
+function saveUsers(u){ localStorage.setItem('mv_users', JSON.stringify(u)); }
+function setCurrentUser(u){ if(u) localStorage.setItem('mv_current_user', u); else localStorage.removeItem('mv_current_user'); }
+function getCurrentUser(){ return localStorage.getItem('mv_current_user') || null; }
+
+/* ---------- DOM refs ---------- */
+const tabLogin = document.getElementById('tabLogin');
+const tabRegister = document.getElementById('tabRegister');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const btnGuest = document.getElementById('btnGuest');
+const loginMessage = document.getElementById('loginMessage');
+const registerMessage = document.getElementById('registerMessage');
+
+const authSection = document.getElementById('authSection');
+const dashboard = document.getElementById('dashboard');
+const userGreet = document.getElementById('userGreet');
+const userMeta = document.getElementById('userMeta');
+const deviceIdEl = document.getElementById('deviceId');
+
+const profileBtn = document.getElementById('profileBtn');
+const profileBackdrop = document.getElementById('profileBackdrop');
+const closeProfile = document.getElementById('closeProfile');
+const profileForm = document.getElementById('profileForm');
+const pfCancel = document.getElementById('pfCancel');
+
+const logoutBtn = document.getElementById('logoutBtn');
+
+const modalBackdrop = document.getElementById('modalBackdrop');
+const closeModal = document.getElementById('closeModal');
+const exportBtn = document.getElementById('exportBtn');
+
+const modalTitle = document.getElementById('modalTitle');
+const modalTable = document.getElementById('modalTable');
+const rangeInfo = document.getElementById('rangeInfo');
+
+const hrValueEl = document.getElementById('hrValue');
+const spo2ValueEl = document.getElementById('spo2Value');
+const bpValueEl = document.getElementById('bpValue');
+const tempValueEl = document.getElementById('tempValue');
+const hrTimeEl = document.getElementById('hrTime');
+const spo2TimeEl = document.getElementById('spo2Time');
+const bpTimeEl = document.getElementById('bpTime');
+const tempTimeEl = document.getElementById('tempTime');
+
+const recentList = document.getElementById('recentList');
+
+let currentChart = null;
+
+/* ---------- tab toggles ---------- */
+tabLogin.addEventListener('click', ()=>{ tabLogin.classList.add('active'); tabRegister.classList.remove('active'); loginForm.classList.add('active'); registerForm.classList.remove('active'); });
+tabRegister.addEventListener('click', ()=>{ tabRegister.classList.add('active'); tabLogin.classList.remove('active'); registerForm.classList.add('active'); loginForm.classList.remove('active'); });
+
+/* ---------- Auth logic ---------- */
+btnGuest.addEventListener('click', ()=>{
+  const users = loadUsers();
+  if(!users['demo']){
+    users['demo'] = { password:'demo', profile:{ name:'Người dùng Demo', age:30, gender:'Khác', height:170, weight:70, history:'' }, settings:{ thrSpo2:94, thrHrHigh:100 } };
+    saveUsers(users);
   }
+  setCurrentUser('demo');
+  enterDashboard();
+});
 
-  const hourlyData = {
-    hr: makeHourlySeries(78,12,45,140,0),
-    spo2: makeHourlySeries(97,3,85,100,0),
-    bp: [], // we'll store systolic/diastolic as tuple strings
-    temp: makeHourlySeries(36.6,0.7,35.5,38.5,1)
-  };
-  // bp generate
-  for(let i=0;i<24;i++){
-    const sys=Math.round(115 + Math.sin(i/24*Math.PI*2)*8 + (Math.random()*10-5));
-    const dia=Math.round(75 + Math.cos(i/24*Math.PI*2)*6 + (Math.random()*6-3));
-    hourlyData.bp.push({time: `${String(i).padStart(2,'0')}:00`, value: `${sys}/${dia}`, sys, dia});
+registerBtn.addEventListener('click', ()=>{
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value;
+  if(!u || !p){ registerMessage.innerHTML = '<div style="color:#dc2626">Vui lòng nhập tên đăng nhập & mật khẩu</div>'; return; }
+  const users = loadUsers();
+  if(users[u]){ registerMessage.innerHTML = '<div style="color:#dc2626">Tài khoản đã tồn tại</div>'; return; }
+  users[u] = { password:p, profile:{
+    name: document.getElementById('regName').value || u,
+    age: document.getElementById('regAge').value || '',
+    gender: document.getElementById('regGender').value || '',
+    height: document.getElementById('regHeight').value || '',
+    weight: document.getElementById('regWeight').value || '',
+    history: document.getElementById('regHistory').value || ''
+  }, settings:{ thrSpo2:94, thrHrHigh:100 } };
+  saveUsers(users);
+  setCurrentUser(u);
+  registerMessage.innerHTML = '<div style="color:green">Tạo tài khoản thành công. Đang vào dashboard...</div>';
+  setTimeout(()=> enterDashboard(), 600);
+});
+
+loginForm.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const users = loadUsers();
+  if(!users[u]){ loginMessage.innerHTML = '<div style="color:#dc2626">Tài khoản không tồn tại</div>'; return; }
+  if(users[u].password !== p){ loginMessage.innerHTML = '<div style="color:#dc2626">Sai mật khẩu</div>'; return; }
+  setCurrentUser(u);
+  loginMessage.innerHTML = '<div style="color:green">Đăng nhập thành công. Đang vào dashboard...</div>';
+  setTimeout(()=> enterDashboard(), 500);
+});
+
+/* ---------- Profile & logout ---------- */
+profileBtn.addEventListener('click', openProfile);
+closeProfile.addEventListener('click', ()=> profileBackdrop.style.display='none');
+pfCancel.addEventListener('click', ()=> profileBackdrop.style.display='none');
+
+profileForm.addEventListener('submit', (e)=>{
+  e.preventDefault(); saveProfileFromForm(); profileBackdrop.style.display='none';
+});
+
+logoutBtn.addEventListener('click', ()=>{
+  if(confirm('Đăng xuất?')){ setCurrentUser(null); showAuth(); }
+});
+
+/* ---------- show/hide auth & dashboard ---------- */
+function showAuth(){ dashboard.style.display='none'; authSection.style.display='flex'; }
+function showDashboard(){ authSection.style.display='none'; dashboard.style.display='block'; }
+
+/* ---------- apply user to UI ---------- */
+function applyUserToUI(){
+  const cur = getCurrentUser();
+  if(!cur) return;
+  const users = loadUsers();
+  const me = users[cur] || {};
+  const p = me.profile || {};
+  userGreet.innerText = `Xin chào, ${p.name || cur}`;
+  userMeta.innerText = p.age ? `${p.age} tuổi • ${p.gender||''}` : '';
+  deviceIdEl.innerText = (me.deviceId) ? me.deviceId : 'R12M-LOCAL';
+  // apply thresholds if exist
+  if(me.settings){ thresholds.spo2_warn = me.settings.thrSpo2 || thresholds.spo2_warn; thresholds.hr_high = me.settings.thrHrHigh || thresholds.hr_high; }
+}
+
+/* ---------- profile save ---------- */
+function openProfile(){
+  const cur = getCurrentUser();
+  if(!cur){ alert('Chưa đăng nhập'); return; }
+  const users = loadUsers();
+  const me = users[cur] || { profile:{} };
+  const p = me.profile || {};
+  document.getElementById('pfName').value = p.name || '';
+  document.getElementById('pfAge').value = p.age || '';
+  document.getElementById('pfGender').value = p.gender || '';
+  document.getElementById('pfHeight').value = p.height || '';
+  document.getElementById('pfWeight').value = p.weight || '';
+  document.getElementById('pfHistory').value = p.history || '';
+  profileBackdrop.style.display = 'flex';
+}
+
+function saveProfileFromForm(){
+  const cur = getCurrentUser();
+  if(!cur) return;
+  const users = loadUsers();
+  users[cur] = users[cur] || {};
+  users[cur].profile = users[cur].profile || {};
+  users[cur].profile.name = document.getElementById('pfName').value;
+  users[cur].profile.age = document.getElementById('pfAge').value;
+  users[cur].profile.gender = document.getElementById('pfGender').value;
+  users[cur].profile.height = document.getElementById('pfHeight').value;
+  users[cur].profile.weight = document.getElementById('pfWeight').value;
+  users[cur].profile.history = document.getElementById('pfHistory').value;
+  saveUsers(users);
+  applyUserToUI();
+  alert('Đã lưu hồ sơ');
+}
+
+/* ---------- simulated hourly data generator (fallback) ---------- */
+function makeHourlySeries(base,variation,min,max,round=0){
+  const arr=[];
+  for(let h=0;h<24;h++){
+    const trend = Math.sin((h/24)*Math.PI*2)*variation*0.4;
+    const noise = (Math.random()*2-1)*variation;
+    let v = base + trend + noise;
+    v = Math.max(min, Math.min(max, v));
+    if(round) v = Math.round(v);
+    else v = Math.round(v*10)/10;
+    arr.push({time: `${String(h).padStart(2,'0')}:00`, value: v});
   }
+  return arr;
+}
 
-  // initial thresholds (can be changed from settings)
-  const thresholds = {
-    spo2_warn: 94,
-    hr_high: 100
-  };
+const hourlyData = {
+  hr: makeHourlySeries(78,12,45,140,0),
+  spo2: makeHourlySeries(97,3,85,100,0),
+  bp: [],
+  temp: makeHourlySeries(36.6,0.7,35.5,38.5,1)
+};
+for(let i=0;i<24;i++){
+  const sys = Math.round(115 + Math.sin(i/24*Math.PI*2)*8 + (Math.random()*10-5));
+  const dia = Math.round(75 + Math.cos(i/24*Math.PI*2)*6 + (Math.random()*6-3));
+  hourlyData.bp.push({time: `${String(i).padStart(2,'0')}:00`, value: `${sys}/${dia}`, sys, dia});
+}
 
-  // fill "current" values from last measurement
-  function setOverviewValues(){
-    const lastHr = hourlyData.hr[23].value;
-    const lastSpo2 = hourlyData.spo2[23].value;
-    const lastBp = hourlyData.bp[23].value;
-    const lastTemp = hourlyData.temp[23].value;
-    document.getElementById('hr').innerText = `${lastHr}`;
-    document.getElementById('spo2').innerText = `${lastSpo2}%`;
-    document.getElementById('bp').innerText = `${lastBp}`;
-    document.getElementById('temp').innerText = `${lastTemp}°C`;
-    const now = new Date();
-    document.getElementById('hrTime').innerText = `${now.getHours()}:00`;
-    document.getElementById('spo2Time').innerText = `${now.getHours()}:00`;
-    document.getElementById('bpTime').innerText = `${now.getHours()}:00`;
-    document.getElementById('tempTime').innerText = `${now.getHours()}:00`;
+/* ---------- thresholds ---------- */
+const thresholds = { spo2_warn:94, hr_high:100 };
 
-    // recent list (last 5)
-    const recentBody = document.getElementById('recentList');
-    recentBody.innerHTML='';
-    const types=[ {k:'hr',label:'Nhịp tim',unit:'BPM'}, {k:'spo2',label:'SpO₂','unit':'%'},
-                  {k:'bp',label:'Huyết áp','unit':'mmHg'}, {k:'temp',label:'Nhiệt độ','unit':'°C'} ];
-    for(let i=23;i>=19;i--){
-      const r = hourlyData.hr[i].value; // choose hr for time label, but alternate rows
-      const t = hourlyData.hr[i].time;
-      // just as demo add 4 rows mixing types
-      types.forEach((tp,idx)=>{
-        if(idx>1) return; // keep to 2 first to not be too long
-        const val = tp.k==='bp'? hourlyData.bp[i].value : (tp.k==='spo2'? hourlyData.spo2[i].value + (tp.k==='spo2'?'%':''): hourlyData.hr[i].value);
-        const row = document.createElement('tr');
-        row.innerHTML = `<td>${t}</td><td>${tp.label}</td><td>${val}</td>`;
-        recentBody.appendChild(row);
-      });
-    }
+/* ---------- overview population ---------- */
+function setOverviewValues(){
+  const lastHr = hourlyData.hr[23].value;
+  const lastSpo2 = hourlyData.spo2[23].value;
+  const lastBp = hourlyData.bp[23].value;
+  const lastTemp = hourlyData.temp[23].value;
+  hrValueEl.innerText = `${lastHr}`;
+  spo2ValueEl.innerText = `${lastSpo2}%`;
+  bpValueEl.innerText = `${lastBp}`;
+  tempValueEl.innerText = `${lastTemp}°C`;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0') + ':00';
+  hrTimeEl.innerText = hh; spo2TimeEl.innerText = hh; bpTimeEl.innerText = hh; tempTimeEl.innerText = hh;
+
+  // recent list
+  recentList.innerHTML = '';
+  for(let i=23;i>=19;i--){
+    const t = hourlyData.hr[i].time;
+    const r1 = `<tr><td>${t}</td><td>Nhịp tim</td><td>${hourlyData.hr[i].value}</td></tr>`;
+    const r2 = `<tr><td>${t}</td><td>SpO₂</td><td>${hourlyData.spo2[i].value}%</td></tr>`;
+    recentList.insertAdjacentHTML('beforeend', r1);
+    recentList.insertAdjacentHTML('beforeend', r2);
   }
+}
 
-  setOverviewValues();
-
-  // ---------- modal logic ----------
-  const modalBackdrop = document.getElementById('modalBackdrop');
-  const modalTable = document.getElementById('modalTable');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalSubtitle = document.getElementById('modalSubtitle');
-  const sideTitle = document.getElementById('sideTitle');
-  const rangeInfo = document.getElementById('rangeInfo');
-  const exportBtn = document.getElementById('exportBtn');
-
-  let currentChart = null;
-  let currentType = null;
-
-  function statusFor(type, valueObj){
-    // return {text, class}
-    if(type==='spo2'){
-      const v = Number(valueObj.value);
-      if(v >= thresholds.spo2_warn) return ['Bình thường','status-normal'];
-      if(v >= thresholds.spo2_warn-4) return ['Cảnh báo','status-warn'];
-      return ['Nguy hiểm','status-danger'];
-    } else if(type==='hr'){
-      const v = Number(valueObj.value);
-      if(v >= thresholds.hr_high+20) return ['Nguy hiểm','status-danger'];
-      if(v > thresholds.hr_high) return ['Cảnh báo','status-warn'];
-      return ['Bình thường','status-normal'];
-    } else if(type==='bp'){
-      // valueObj has sys,dia
-      const sys = valueObj.sys;
-      if(sys >= 160) return ['Nguy hiểm','status-danger'];
-      if(sys >= 140) return ['Cảnh báo','status-warn'];
-      return ['Bình thường','status-normal'];
-    } else if(type==='temp'){
-      const v = Number(valueObj.value);
-      if(v >= 38) return ['Sốt','status-warn']; // simplified
-      return ['Bình thường','status-normal'];
-    }
-    return ['N/A',''];
+/* ---------- modal chart logic ---------- */
+function statusFor(type, valueObj){
+  if(type==='spo2'){
+    const v = Number(valueObj.value);
+    if(v >= thresholds.spo2_warn) return ['Bình thường','status-normal'];
+    if(v >= thresholds.spo2_warn-4) return ['Cảnh báo','status-warn'];
+    return ['Nguy hiểm','status-danger'];
+  } else if(type==='hr'){
+    const v = Number(valueObj.value);
+    if(v >= thresholds.hr_high+20) return ['Nguy hiểm','status-danger'];
+    if(v > thresholds.hr_high) return ['Cảnh báo','status-warn'];
+    return ['Bình thường','status-normal'];
+  } else if(type==='bp'){
+    const sys = valueObj.sys;
+    if(sys >= 160) return ['Nguy hiểm','status-danger'];
+    if(sys >= 140) return ['Cảnh báo','status-warn'];
+    return ['Bình thường','status-normal'];
+  } else if(type==='temp'){
+    const v = Number(valueObj.value);
+    if(v >= 38) return ['Sốt','status-warn'];
+    return ['Bình thường','status-normal'];
   }
+  return ['N/A',''];
+}
 
-  function openModal(type){
-    currentType = type;
-    modalBackdrop.style.display='flex';
-    // title
-    const mapTitle = {hr:'Nhịp tim (BPM)', spo2:'SpO₂ (%)', bp:'Huyết áp (mmHg)', temp:'Nhiệt độ (°C)'};
-    modalTitle.innerText = mapTitle[type] || 'Chi tiết';
-    modalSubtitle.innerText = 'Biểu đồ theo giờ trong ngày';
-    sideTitle.innerText = 'Danh sách các lần đo';
+let currentChartObj = null;
+let currentModalType = null;
 
-    // prepare labels + dataset
-    let labels = [];
-    let data = [];
-    let warnLine = null;
-    let highLine = null;
+function openModal(type){
+  currentModalType = type;
+  modalBackdrop.style.display = 'flex';
+  modalTitle.innerText = (type==='hr'? 'Nhịp tim (BPM)': type==='spo2'? 'SpO₂ (%)' : type==='bp'? 'Huyết áp (mmHg)': 'Nhiệt độ (°C)');
+  rangeInfo.innerText = `Ngưỡng: ${type==='hr'? thresholds.hr_high : (type==='spo2'? thresholds.spo2_warn : '—')}`;
 
-    if(type==='hr'){
-      labels = hourlyData.hr.map(d=>d.time);
-      data = hourlyData.hr.map(d=>d.value);
-      warnLine = thresholds.hr_high;
-    } else if(type==='spo2'){
-      labels = hourlyData.spo2.map(d=>d.time);
-      data = hourlyData.spo2.map(d=>d.value);
-      warnLine = thresholds.spo2_warn;
-    } else if(type==='bp'){
-      labels = hourlyData.bp.map(d=>d.time);
-      data = hourlyData.bp.map(d=>d.sys); // show systolic for chart
-      // Add diastolic as secondary dataset visually? keep single dataset for simplicity
-      warnLine = 140; // hypertension threshold
-    } else if(type==='temp'){
-      labels = hourlyData.temp.map(d=>d.time);
-      data = hourlyData.temp.map(d=>d.value);
-      warnLine = 37.5;
-    }
+  let labels = [], data = [];
+  if(type==='hr'){ labels = hourlyData.hr.map(d=>d.time); data = hourlyData.hr.map(d=>d.value); }
+  if(type==='spo2'){ labels = hourlyData.spo2.map(d=>d.time); data = hourlyData.spo2.map(d=>d.value); }
+  if(type==='bp'){ labels = hourlyData.bp.map(d=>d.time); data = hourlyData.bp.map(d=>d.sys); }
+  if(type==='temp'){ labels = hourlyData.temp.map(d=>d.time); data = hourlyData.temp.map(d=>d.value); }
 
-    rangeInfo.innerText = `Ngưỡng: ${warnLine || '—'}`;
-
-    // render chart (destroy old)
-    if(currentChart) { currentChart.destroy(); currentChart = null; }
-
-    const ctx = document.getElementById('lineChart').getContext('2d');
-    const datasets = [{
-      label: mapTitle[type],
-      data: data,
-      tension:0.3,
-      fill:true,
-      pointRadius:3
-    }];
-    // create chart with plugin for horizontal line
-    currentChart = new Chart(ctx, {
-      type:'line',
-      data:{labels, datasets},
-      options:{
-        responsive:true,
-        maintainAspectRatio:false,
-        scales:{
-          y:{
-            beginAtZero:false,
-            grid:{color:'#eef2f6'}
-          },
-          x:{grid:{display:false}}
-        },
-        plugins:{
-          legend:{display:false},
-          annotation: {
-            // placeholder - not using chartjs-annotation plugin, will draw using afterDraw
-          }
-        },
-        animation:{duration:300}
-      },
-      plugins: [{
-        // plugin to draw horizontal threshold line
-        id: 'thresholdLine',
-        afterDraw(chart){
-          const yValue = warnLine;
-          if(!yValue) return;
-          const yScale = chart.scales.y;
-          const ctx = chart.ctx;
-          const yPixel = yScale.getPixelForValue(yValue);
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(chart.chartArea.left, yPixel);
-          ctx.lineTo(chart.chartArea.right, yPixel);
-          ctx.strokeStyle = 'rgba(255,165,0,0.9)';
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([6,4]);
-          ctx.stroke();
-          ctx.fillStyle = 'rgba(255,165,0,0.9)';
-          ctx.font = '12px Inter, Arial';
-          ctx.fillText(`Ngưỡng (${yValue})`, chart.chartArea.right - 90, yPixel - 6);
-          ctx.restore();
-        }
-      }]
-    });
-
-    // populate table
-    modalTable.innerHTML='';
-    let arr = hourlyData[type];
-    for(let i=0;i<arr.length;i++){
-      const r = arr[i];
-      let val = '';
-      let status = ['', ''];
-      if(type==='bp'){
-        val = r.value;
-        status = statusFor(type, r);
-      } else {
-        val = (type==='spo2')? r.value + '%' : (type==='temp'? r.value + '°C' : r.value);
-        status = statusFor(type, r);
+  // Chart
+  if(currentChartObj){ currentChartObj.destroy(); currentChartObj = null; }
+  const ctx = document.getElementById('lineChart').getContext('2d');
+  currentChartObj = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets:[{ label: modalTitle.innerText, data, tension:0.3, fill:true, pointRadius:3 }] },
+    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ grid:{color:'#eef2f6'} }, x:{ grid:{display:false} } }, plugins:{ legend:{display:false} } },
+    plugins: [{
+      id: 'thresholdLine',
+      afterDraw(chart){
+        const warn = (type==='hr'? thresholds.hr_high : (type==='spo2'? thresholds.spo2_warn : null));
+        if(warn===null || warn===undefined) return;
+        const yScale = chart.scales.y;
+        const yPixel = yScale.getPixelForValue(warn);
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(chart.chartArea.left, yPixel);
+        ctx.lineTo(chart.chartArea.right, yPixel);
+        ctx.strokeStyle = 'rgba(255,165,0,0.9)';
+        ctx.setLineDash([6,4]);
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,165,0,0.9)';
+        ctx.font = '12px Poppins, Arial';
+        ctx.fillText(`Ngưỡng (${warn})`, chart.chartArea.right - 100, yPixel - 6);
+        ctx.restore();
       }
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.time}</td><td>${val}</td><td class="${status[1]}">${status[0]}</td>`;
-      modalTable.appendChild(tr);
-    }
+    }]
+  });
 
-    // export handler
-    exportBtn.onclick = ()=> {
-      let csv = 'time,value,status\n';
-      for(const r of arr){
-        let value = (type==='bp')? r.value : r.value;
-        const st = statusFor(type, r)[0];
-        csv += `${r.time},${value},${st}\n`;
-      }
-      const blob = new Blob([csv],{type:'text/csv'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `${type}_data.csv`; a.click();
-      URL.revokeObjectURL(url);
-    };
+  // populate table
+  modalTable.innerHTML = '';
+  const arr = (type==='hr'? hourlyData.hr : type==='spo2'? hourlyData.spo2 : type==='bp'? hourlyData.bp : hourlyData.temp);
+  for(const r of arr){
+    let val = (type==='spo2')? r.value + '%' : (type==='temp'? r.value + '°C' : (type==='bp'? r.value : r.value));
+    const st = statusFor(type, r);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.time}</td><td>${val}</td><td class="${st[1]}">${st[0]}</td>`;
+    modalTable.appendChild(tr);
   }
 
-  // close modal
-  document.getElementById('closeModal').addEventListener('click',()=>{ modalBackdrop.style.display='none'; });
+  // export
+  exportBtn.onclick = ()=>{
+    let csv = 'time,value,status\n';
+    for(const r of arr){
+      const v = (type==='spo2')? r.value + '%' : (type==='temp'? r.value + '°C' : (type==='bp'? r.value : r.value));
+      const st = statusFor(type,r)[0];
+      csv += `${r.time},${v},${st}\n`;
+    }
+    const blob = new Blob([csv],{type:'text/csv'}), url = URL.createObjectURL(blob), a=document.createElement('a');
+    a.href = url; a.download = `${type}_data.csv`; a.click(); URL.revokeObjectURL(url);
+  };
+}
 
-  // attach click on cards
-  document.querySelectorAll('.card').forEach(card=>{
-    card.addEventListener('click', ()=>{
-      const type = card.dataset.type;
-      openModal(type);
-    });
-  });
+closeModal.addEventListener('click', ()=> modalBackdrop.style.display='none');
+modalBackdrop.addEventListener('click', (e)=> { if(e.target===modalBackdrop) modalBackdrop.style.display='none'; });
 
-  // settings logic
-  const settingsBackdrop = document.getElementById('settingsBackdrop');
-  document.getElementById('settingsBtn').addEventListener('click', ()=> {
-    settingsBackdrop.style.display='flex';
-    // load from localStorage
-    const store = JSON.parse(localStorage.getItem('mv_settings') || '{}');
-    document.getElementById('inputName').value = store.name || 'Nguyễn Văn A';
-    document.getElementById('inputPhone').value = store.phone || '0983xxxxxx';
-    document.getElementById('inputEmail').value = store.email || '';
-    document.getElementById('thrSpo2').value = store.thrSpo2 || thresholds.spo2_warn;
-    document.getElementById('thrHrHigh').value = store.thrHrHigh || thresholds.hr_high;
-  });
-  document.getElementById('closeSettings').addEventListener('click', ()=> settingsBackdrop.style.display='none');
-  document.getElementById('cancelSettings').addEventListener('click', ()=> settingsBackdrop.style.display='none');
-  document.getElementById('settingsForm').addEventListener('submit', (e)=>{
-    e.preventDefault();
-    const store = {
-      name: document.getElementById('inputName').value,
-      phone: document.getElementById('inputPhone').value,
-      email: document.getElementById('inputEmail').value,
-      thrSpo2: Number(document.getElementById('thrSpo2').value) || thresholds.spo2_warn,
-      thrHrHigh: Number(document.getElementById('thrHrHigh').value) || thresholds.hr_high
-    };
-    // save and apply thresholds
-    thresholds.spo2_warn = store.thrSpo2;
-    thresholds.hr_high = store.thrHrHigh;
-    localStorage.setItem('mv_settings', JSON.stringify(store));
-    settingsBackdrop.style.display='none';
-    alert('Đã lưu cài đặt');
-  });
+document.querySelectorAll('.card').forEach(card=>{
+  card.addEventListener('click', ()=> openModal(card.dataset.type));
+});
 
-  // logout logic
-  const logoutBackdrop = document.getElementById('logoutBackdrop');
-  document.getElementById('logoutBtn').addEventListener('click', ()=> logoutBackdrop.style.display='flex');
-  document.getElementById('cancelLogout').addEventListener('click', ()=> logoutBackdrop.style.display='none');
-  document.getElementById('confirmLogout').addEventListener('click', ()=> {
-    logoutBackdrop.style.display='none';
-    alert('Bạn đã đăng xuất (mô phỏng).');
-    // here you'd redirect to login
-  });
+/* ---------- connectEra: integrate EraWidget or fallback to simulated realtime updates ---------- */
+let eraWidgetInstance = null;
+let eraConnected = false;
 
-  // init: hide modals
-  modalBackdrop.style.display='none';
-  settingsBackdrop.style.display='none';
-  logoutBackdrop.style.display='none';
+function connectEra(){
+  // Replace these with your token / deviceId if you have Era access
+  const ERA_TOKEN = '1ced9c99-1cd3-45f6-98a1-82ea28141f85';
+  const ERA_DEVICE_ID = '15794';
 
-  // small UX: clicking backdrop closes settings/logout but not modal content
-  [settingsBackdrop, logoutBackdrop].forEach(b => {
-    b.addEventListener('click', (e)=> { if(e.target===b) b.style.display='none'; });
-  });
-  // modal backdrop close by clicking outside
-  modalBackdrop.addEventListener('click', (e)=> { if(e.target===modalBackdrop) modalBackdrop.style.display='none'; });
-
-  // initial filling
-  setOverviewValues();
-
-})();
-const temp = document.getElementById('temp');
-      const spo2 = document.getElementById('spo2');
-      const hb   = document.getElementById('heart');
-      const bp   = document.getElementById('bp');
-
-      let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
-
-      const eraWidget = new EraWidget({
-        token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
-        deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
-      });
-
-      eraWidget.init({
+  // If EraWidget exists (client SDK included on page), use it
+  if(window.EraWidget){
+    try{
+      eraWidgetInstance = new EraWidget({ token: ERA_TOKEN, deviceId: ERA_DEVICE_ID });
+      eraWidgetInstance.init({
         needRealtimeConfigs: true,
-        needHistoryConfigs: true,
+        needHistoryConfigs: false,
         needActions: false,
-        maxRealtimeConfigsCount: 4,
-        maxHistoryConfigsCount: 1,
-
-        onConfiguration: (configuration) => {
-          configTemp = configuration.realtime_configs[0];
-          configHB   = configuration.realtime_configs[1];
-          configSPO2 = configuration.realtime_configs[2];
-          configBP   = configuration.realtime_configs[3];
-          console.log('Configuration:', configuration);
-        },
-
+        maxRealtimeConfigsCount: 8,
+        onConfiguration: (conf) => { console.log('Era configuration', conf); },
         onValues: (values) => {
-          const valueTemp = values[configTemp?.id]?.value;
-          const valueHB   = values[configHB?.id]?.value;
-          const valueSPO2 = values[configSPO2?.id]?.value;
-          const valueBP   = values[configBP?.id]?.value;
-
-          if (valueTemp !== undefined) temp.innerHTML = `${valueTemp} °C`;
-          if (valueHB !== undefined)   hb.innerHTML   = `${valueHB} bpm`;
-          if (valueSPO2 !== undefined) spo2.innerHTML = `${valueSPO2} %`;
-          if (valueBP !== undefined)   bp.innerHTML   = `${valueBP} mmHg`;
-
-          console.log("Values:", values);
+          // Map based on your device realtime config ids; adapt if needed.
+          // This assumes your realtime configs provide keys for HR, SPO2, BP, TEMP.
+          // We'll update UI when values arrive.
+          // Example mapping: values = { 'configId1': { value: 78 }, ... }
+          // For safety, find keys that look like hr/spo2/temp if available (or adapt).
+          console.log('Era values:', values);
+          // You must set mapping according to your device configuration
+          // Example (pseudo):
+          // if(values['hrConfigId']) updateHR(values['hrConfigId'].value);
+          // For now, attempt to parse common keys:
+          Object.keys(values).forEach(k=>{
+            const v = values[k] && values[k].value;
+            if(v===undefined) return;
+            // Heuristic: if v within 30-220 treat as HR; 80-100 as spo2; if string with '/' as BP
+            if(typeof v === 'number'){
+              if(v >= 30 && v <= 220){
+                updateHR(v);
+              } else if(v >= 80 && v <= 100){
+                updateSpO2(v);
+              } else if(v >= 30 && v <= 45){ // maybe temp (C) low bound
+                updateTemp(v);
+              } else {
+                // default: log
+                console.log('Unmapped numeric value', k, v);
+              }
+            } else if(typeof v === 'string' && v.includes('/')){
+              // e.g. "120/80"
+              updateBP(v);
+            }
+          });
+          eraConnected = true;
         }
       });
-    
-  </script>
-  <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
+      console.log('Era widget init called');
+      return;
+    }catch(err){
+      console.warn('EraWidget init failed:', err);
+    }
+  }
+
+  // Fallback: simulated realtime updates (every 3s)
+  console.log('EraWidget not available — using simulated realtime updates');
+  setInterval(()=>{
+    // random small variations
+    const hr = Math.round(hourlyData.hr[23].value + (Math.random()*6-3));
+    const spo2 = Math.round(hourlyData.spo2[23].value + (Math.random()*2-1));
+    const temp = Math.round((Number(hourlyData.temp[23].value) + (Math.random()*0.4-0.2))*10)/10;
+    const sys = Math.round(115 + (Math.random()*10-5));
+    const dia = Math.round(75 + (Math.random()*8-4));
+    updateHR(hr);
+    updateSpO2(spo2);
+    updateTemp(temp);
+    updateBP(`${sys}/${dia}`);
+    // push into hourlyData arrays (shift left)
+    hourlyData.hr.shift(); hourlyData.hr.push({time: new Date().toTimeString().slice(0,5), value: hr});
+    hourlyData.spo2.shift(); hourlyData.spo2.push({time: new Date().toTimeString().slice(0,5), value: spo2});
+    hourlyData.temp.shift(); hourlyData.temp.push({time: new Date().toTimeString().slice(0,5), value: temp});
+    hourlyData.bp.shift(); hourlyData.bp.push({time: new Date().toTimeString().slice(0,5), value: `${sys}/${dia}`, sys, dia});
+    setOverviewValues();
+  }, 3000);
+}
+
+/* ---------- UI update helpers ---------- */
+function updateHR(v){
+  hrValueEl.innerText = v;
+  hrTimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
+function updateSpO2(v){
+  spo2ValueEl.innerText = `${v}%`;
+  spo2TimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
+function updateBP(s){
+  bpValueEl.innerText = s;
+  bpTimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
+function updateTemp(t){
+  tempValueEl.innerText = `${t}°C`;
+  tempTimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
+
+/* ---------- enter dashboard ---------- */
+function enterDashboard(){
+  applyUserToUI();
+  setOverviewValues();
+  showDashboard();
+  connectEra(); // start realtime (Era or simulated)
+}
+
+/* ---------- startup: if already logged in show dashboard ---------- */
+window.addEventListener('load', ()=>{
+  if(getCurrentUser()){ enterDashboard(); } else { showAuth(); }
+});
+
+</script>
+<script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
-
