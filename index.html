@@ -626,7 +626,12 @@ let eraWidgetInstance = null;
 let eraConnected = false;
 
 function connectEra(){
+  const temp = document.getElementById('temp');
+      const spo2 = document.getElementById('spo2');
+      const hb   = document.getElementById('heart');
+      const bp   = document.getElementById('bp');
 
+      let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
       const eraWidget = new EraWidget({
         token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
         deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
