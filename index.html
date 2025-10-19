@@ -479,9 +479,10 @@ function makeHourlySeries(base,variation,min,max,round=0){
   return arr;
 }
 
+let EraData = [];
 const hourlyData = {
-  hr: [60],
-  spo2: makeHourlySeries(97,3,85,100,0),
+  hr: makeHourlySeries(60,3,50,140,0),
+  spo2: makeHourlySeries(97,3,90,100,0),
   bp: [],
   temp: makeHourlySeries(36.6,0.7,35.5,38.5,1)
 };
@@ -554,10 +555,10 @@ function openModal(type){
   rangeInfo.innerText = `Ngưỡng: ${type==='hr'? thresholds.hr_high : (type==='spo2'? thresholds.spo2_warn : '—')}`;
 
   let labels = [], data = [];
-  if(type==='hr'){ labels = eradata.hr.map(d=>d.time); data = eradata.hr.map(d=>d.value); }
-  if(type==='spo2'){ labels = eradata.spo2.map(d=>d.time); data = eradata.spo2.map(d=>d.value); }
-  if(type==='bp'){ labels = eradata.bp.map(d=>d.time); data = eradata.bp.map(d=>d.sys); }
-  if(type==='temp'){ labels = eradata.temp.map(d=>d.time); data = eradata.temp.map(d=>d.value); }
+  if(type==='hr'){ labels = hourlyData.hr.map(d=>d.time); data = hourlyData.hr.map(d=>d.value); }
+  if(type==='spo2'){ labels = hourlyData.spo2.map(d=>d.time); data = hourlyData.spo2.map(d=>d.value); }
+  if(type==='bp'){ labels = hourlyData.bp.map(d=>d.time); data = hourlyData.bp.map(d=>d.sys); }
+  if(type==='temp'){ labels = hourlyData.temp.map(d=>d.time); data = hourlyData.temp.map(d=>d.value); }
 
   // Chart
   if(currentChartObj){ currentChartObj.destroy(); currentChartObj = null; }
@@ -641,15 +642,14 @@ function connectEra(){
           
           console.log('Era configuration', conf); },
         onValues: (values) => {
-        const valueTemp = values[configTemp?.id]?.value;
-        const valueHB   = values[configHB?.id]?.value;
-        const valueSPO2 = values[configSPO2?.id]?.value;
-        const valueBP   = values[configBP?.id]?.value;
-        if (valueTemp !== undefined) tempEl.innerHTML = `${valueTemp} °C`;
-        if (valueHB !== undefined)   hrEl.innerHTML   = `${valueHB} bpm`;
-        if (valueSPO2 !== undefined) spo2El.innerHTML = `${valueSPO2} %`;
-        if (valueBP !== undefined)   bpEl.innerHTML   = `${valueBP} mmHg`;
-        let eradata1 ={valueBP,valueTemp,valueSPO2,valueHB};
+        const valueTemp = values[configTemp.id].value;
+        const valueHB   = values[configHB.id].value;
+        const valueSPO2 = values[configSPO2.id].value;
+        const valueBP   = values[configBP.id].value;
+        tempEl.innerHTML = `${valueTemp} °C`;
+        hrEl.innerHTML   = `${valueHB} bpm`;
+        spo2El.innerHTML = `${valueSPO2} %`;
+        bpEl.innerHTML   = `${valueBP} mmHg`;
         console.log('Era values:', values);},
         
         })};
