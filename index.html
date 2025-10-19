@@ -1,103 +1,630 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MSVitaSync Dashboard</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MS VITA_SYNC - Dashboard (ERA)</title>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: "Poppins", sans-serif;
+    :root{
+      --bg:#f6f8fb;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#16a34a;
+      --accent-2:#0ea5e9;
+      --danger:#ef4444;
+      font-family: 'Poppins', system-ui, Arial, sans-serif;
     }
-    body {
-      background: linear-gradient(to right, #dff6ff, #e9faff);
-      margin: 0;
-      padding: 0;
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#fbfdff 0%, var(--bg) 100%);
+      color:#0f172a;
+      min-height:100vh;
+      display:flex;align-items:center;justify-content:center;padding:28px;
     }
-    .container {
-      max-width: 950px;
-      margin: 40px auto;
-      background: #fff;
-      border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      padding: 24px 32px;
+    .app{width:100%;max-width:1200px}
+
+    /* Auth card */
+    .auth-wrap{display:flex;gap:24px;align-items:flex-start}
+    .auth-card{
+      width:420px;
+      background:var(--card);border-radius:16px;padding:20px;box-shadow:0 12px 40px rgba(10,20,40,.06);
     }
-    h1 {
-      text-align: center;
-      color: #0077b6;
-      margin-bottom: 20px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      padding: 12px;
-      text-align: center;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background: #f0f8ff;
-      color: #0077b6;
-    }
-    .status {
-      padding: 6px 12px;
-      border-radius: 12px;
-      color: white;
-      font-size: 13px;
-    }
-    .online {
-      background: #28a745;
-    }
-    .offline {
-      background: #dc3545;
-    }
-    .value {
-      font-weight: 600;
-      color: #333;
+    .brand{display:flex;gap:12px;align-items:center;margin-bottom:6px}
+    .logo{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--accent-2),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:800}
+    .tabs{display:flex;gap:8px;margin:12px 0}
+    .tab{flex:1;padding:10px;border-radius:10px;text-align:center;background:#f1f5f9;cursor:pointer;font-weight:600}
+    .tab.active{background:linear-gradient(90deg,var(--accent-2),var(--accent));color:white}
+
+    .auth-form{display:none;flex-direction:column;gap:8px}
+    .auth-form.active{display:flex}
+    input,textarea,select{padding:10px;border-radius:10px;border:1px solid #eef2f6;background:#fbfdff;font-size:14px}
+    .row{display:flex;gap:8px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;cursor:pointer}
+    .btn-primary{background:linear-gradient(90deg,var(--accent-2),var(--accent));color:white;font-weight:700}
+    .btn-ghost{background:transparent;border:1px solid #edf2f7;color:var(--muted)}
+
+    /* Dashboard */
+    .dashboard{display:none;margin-top:8px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+    .device-info{background:var(--card);border-radius:12px;padding:10px 14px;box-shadow:0 6px 18px rgba(20,40,60,.04);display:flex;align-items:center;gap:12px}
+
+    .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(10,20,40,.04);cursor:pointer;transition:transform .12s}
+    .card:hover{transform:translateY(-6px)}
+    .value{font-size:28px;font-weight:700}
+    .sub{font-size:12px;color:var(--muted)}
+
+    .main{display:flex;gap:18px;align-items:flex-start;margin-top:12px}
+    .left{flex:1}
+    .right{width:360px}
+
+    table{width:100%;border-collapse:collapse}
+    thead th{ text-align:left;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:1px solid #edf1f4}
+    tbody td{padding:8px 8px;border-bottom:1px solid #f1f5f8}
+    .status-normal{color:green;font-weight:600}
+    .status-warn{color:orange;font-weight:600}
+    .status-danger{color:var(--danger);font-weight:700}
+
+    .modal-backdrop{position:fixed;inset:0;background:rgba(12,20,30,.45);display:none;align-items:center;justify-content:center;z-index:60}
+    .modal{background:var(--card);border-radius:12px;padding:16px;width:92%;max-width:920px;box-shadow:0 30px 60px rgba(10,20,40,.4)}
+
+    .profile-btn{padding:8px 10px;border-radius:10px;border:1px solid #eef2f6;background:white;cursor:pointer}
+
+    /* responsive */
+    @media (max-width:980px){
+      .auth-wrap{flex-direction:column;align-items:center}
+      .right{width:100%}
+      .grid{grid-template-columns:1fr}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Thiết bị theo dõi sức khỏe - MSVitaSync</h1>
-    <table>
-      <thead>
-        <tr>
-          <th>Thiết bị</th>
-          <th>Trạng thái</th>
-          <th>Giá trị đo</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>Nhiệt độ</td>
-          <td><span id="status-temp" class="status offline">Ngoại tuyến</span></td>
-          <td class="value" id="val-temp">--</td>
-        </tr>
-        <tr>
-          <td>SpO₂</td>
-          <td><span id="status-spo2" class="status offline">Ngoại tuyến</span></td>
-          <td class="value" id="val-spo2">--</td>
-        </tr>
-        <tr>
-          <td>Nhịp tim</td>
-          <td><span id="status-hr" class="status offline">Ngoại tuyến</span></td>
-          <td class="value" id="val-hr">--</td>
-        </tr>
-        <tr>
-          <td>Huyết áp</td>
-          <td><span id="status-bp" class="status offline">Ngoại tuyến</span></td>
-          <td class="value" id="val-bp">--</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="app">
+
+    <!-- AUTH + DASHBOARD in one file -->
+    <div id="authSection" class="auth-wrap">
+      <!-- left: auth -->
+      <div class="auth-card">
+        <div class="brand">
+          <div class="logo">MV</div>
+          <div>
+            <div style="font-weight:700">MS VITA_SYNC</div>
+            <div style="font-size:13px;color:var(--muted)">Sức khỏe thông minh</div>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <div id="tabLogin" class="tab active">Đăng nhập</div>
+          <div id="tabRegister" class="tab">Đăng ký</div>
+        </div>
+
+        <!-- login -->
+        <form id="loginForm" class="auth-form active">
+          <input id="loginUser" placeholder="Tên đăng nhập" autocomplete="username">
+          <div style="position:relative">
+            <input id="loginPass" type="password" placeholder="Mật khẩu" autocomplete="current-password">
+          </div>
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+            <button id="btnGuest" type="button" class="btn btn-ghost">Xem thử</button>
+            <button id="loginBtn" type="submit" class="btn btn-primary">Đăng nhập</button>
+          </div>
+          <div id="loginMessage" style="margin-top:8px"></div>
+        </form>
+
+        <!-- register -->
+        <form id="registerForm" class="auth-form" style="margin-top:6px">
+          <input id="regUser" placeholder="Tên đăng nhập">
+          <input id="regPass" type="password" placeholder="Mật khẩu">
+          <input id="regName" placeholder="Họ và tên">
+          <div class="row">
+            <input id="regAge" type="number" placeholder="Tuổi">
+            <input id="regGender" placeholder="Giới tính">
+          </div>
+          <div class="row">
+            <input id="regHeight" type="number" placeholder="Chiều cao (cm)">
+            <input id="regWeight" type="number" placeholder="Cân nặng (kg)">
+          </div>
+          <textarea id="regHistory" rows="2" placeholder="Tiền sử bệnh lý"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:8px">
+            <button id="registerBtn" type="button" class="btn btn-primary">Tạo tài khoản</button>
+          </div>
+          <div id="registerMessage" style="margin-top:8px"></div>
+        </form>
+      </div>
+
+      <!-- right: preview -->
+      <div style="flex:1;min-width:320px">
+        <div style="background:var(--card);padding:18px;border-radius:12px;box-shadow:0 12px 30px rgba(10,20,40,.04)">
+          <div style="font-weight:700;margin-bottom:6px">Demo / Hướng dẫn</div>
+          <div style="color:var(--muted);font-size:13px">- Dùng \"Xem thử\" để tạo tài khoản demo.<br>- Đăng ký để lưu hồ sơ vào localStorage.<br>- Sau khi đăng nhập, dashboard sẽ hiển thị và bắt đầu lấy dữ liệu từ Era nếu cấu hình.</div>
+          <hr style="margin:12px 0;border:none;border-top:1px solid #f1f5f8">
+          <div style="font-weight:700">Kết nối Era</div>
+          <div style="color:var(--muted);font-size:13px">Bạn cần cung cấp token & deviceId bên trong mã (connectEra) để nhận dữ liệu thật.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboard" class="dashboard">
+      <div class="topbar">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="logo" style="width:44px;height:44px;font-size:14px">MV</div>
+          <div>
+            <div style="font-weight:800">MS VITA_SYNC</div>
+            <div id="topSub" style="color:var(--muted);font-size:13px">Sức khỏe thông minh</div>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="text-align:right">
+            <div id="userGreet" style="font-weight:700">Xin chào</div>
+            <div id="userMeta" style="font-size:12px;color:var(--muted)"></div>
+          </div>
+          <button id="profileBtn" class="profile-btn">Hồ sơ</button>
+          <div class="device-info">
+            <div style="min-width:52px">
+              <small>Thiết bị</small>
+              <b id="deviceId">—</b>
+            </div>
+            <div style="min-width:56px;text-align:right">
+              <small>Firmware</small>
+              <div style="font-weight:700">—</div>
+            </div>
+          </div>
+          <button id="logoutBtn" class="btn btn-ghost">Đăng xuất</button>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card" data-type="hr">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">❤️ Nhịp tim</div><div class="sub">BPM</div></div>
+            <div class="value" id="hr">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="hrTime">--</span></div>
+        </div>
+
+        <div class="card" data-type="spo2">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">💨 SpO₂</div><div class="sub">%</div></div>
+            <div class="value" id="spo2">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="spo2Time">--</span></div>
+        </div>
+
+        <div class="card" data-type="bp">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">🩸 Huyết áp</div><div class="sub">mmHg</div></div>
+            <div class="value" id="bp">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="bpTime">--</span></div>
+        </div>
+
+        <div class="card" data-type="temp">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div><div style="font-size:16px">🌡️ Nhiệt độ</div><div class="sub">°C</div></div>
+            <div class="value" id="temp">--</div>
+          </div>
+          <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="tempTime">--</span></div>
+        </div>
+      </div>
+
+      <div class="main">
+        <div class="left">
+          <div style="background:var(--card);padding:14px;border-radius:12px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div style="font-weight:700">Tổng quan sức khỏe</div>
+              <div style="color:var(--muted);font-size:13px">Dữ liệu thời gian thực</div>
+            </div>
+            <div id="overviewText" style="color:var(--muted)">Nhấn một ô trên để xem chi tiết.</div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div style="background:var(--card);padding:12px;border-radius:12px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
+            <div style="font-weight:700;margin-bottom:8px">Lần đo gần đây</div>
+            <table><thead><tr><th>Thời gian</th><th>Chỉ số</th><th>Giá trị</th></tr></thead><tbody id="recentList"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- modal chart -->
+    <div id="modalBackdrop" class="modal-backdrop">
+      <div class="modal">
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div>
+              <div id="modalTitle" style="font-weight:800"></div>
+              <div id="modalSubtitle" style="color:var(--muted);font-size:13px">Biểu đồ theo giờ</div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div id="rangeInfo" style="font-size:13px;color:var(--muted)"></div>
+              <div class="close-btn" id="closeModal">✖</div>
+            </div>
+          </div>
+          <div style="height:280px"><canvas id="lineChart"></canvas></div>
+        </div>
+        <div style="width:320px;padding-left:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700">Bảng số liệu</div>
+            <button id="exportBtn" class="btn">Tải CSV</button>
+          </div>
+          <div style="height:260px;overflow:auto">
+            <table><thead><tr><th>Thời gian</th><th>Giá trị</th><th>Trạng thái</th></tr></thead><tbody id="modalTable"></tbody></table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- profile modal -->
+    <div id="profileBackdrop" class="modal-backdrop">
+      <div class="modal" style="max-width:520px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><div style="font-weight:800">Hồ sơ người dùng</div><div style="color:var(--muted);font-size:13px">Xem / chỉnh thông tin</div></div>
+          <div class="close-btn" id="closeProfile">✖</div>
+        </div>
+        <form id="profileForm" style="display:flex;flex-direction:column;gap:8px">
+          <input id="pfName" placeholder="Họ và tên">
+          <div class="row">
+            <input id="pfAge" type="number" placeholder="Tuổi">
+            <input id="pfGender" placeholder="Giới tính">
+          </div>
+          <div class="row">
+            <input id="pfHeight" type="number" placeholder="Chiều cao (cm)">
+            <input id="pfWeight" type="number" placeholder="Cân nặng (kg)">
+          </div>
+          <textarea id="pfHistory" rows="2" placeholder="Tiền sử bệnh lý"></textarea>
+          <div style="display:flex;justify-content:flex-end;gap:8px">
+            <button type="button" id="pfCancel" class="btn btn-ghost">Huỷ</button>
+            <button type="submit" class="btn btn-primary">Lưu</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
   </div>
 
-  <script>
-    // --- Kết nối dữ liệu thật từ ERA ---
-    const eraWidget = new EraWidget({
+<script>
+/*
+  All-in-one:
+  - Auth (register/login) saved to localStorage (mv_users, mv_current_user)
+  - Dashboard (shows hr, spo2, bp, temp)
+  - connectEra(): if EraWidget exists, uses it; otherwise fallback to simulated realtime
+  - Chart modal, CSV export
+*/
+
+/* ---------- storage helpers ---------- */
+function loadUsers(){ try{ return JSON.parse(localStorage.getItem('mv_users')||'{}'); }catch(e){return{};} }
+function saveUsers(u){ localStorage.setItem('mv_users', JSON.stringify(u)); }
+function setCurrentUser(u){ if(u) localStorage.setItem('mv_current_user', u); else localStorage.removeItem('mv_current_user'); }
+function getCurrentUser(){ return localStorage.getItem('mv_current_user') || null; }
+
+/* ---------- DOM refs ---------- */
+const tabLogin = document.getElementById('tabLogin');
+const tabRegister = document.getElementById('tabRegister');
+const loginForm = document.getElementById('loginForm');
+const registerForm = document.getElementById('registerForm');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+const btnGuest = document.getElementById('btnGuest');
+const loginMessage = document.getElementById('loginMessage');
+const registerMessage = document.getElementById('registerMessage');
+
+const authSection = document.getElementById('authSection');
+const dashboard = document.getElementById('dashboard');
+const userGreet = document.getElementById('userGreet');
+const userMeta = document.getElementById('userMeta');
+const deviceIdEl = document.getElementById('deviceId');
+
+const profileBtn = document.getElementById('profileBtn');
+const profileBackdrop = document.getElementById('profileBackdrop');
+const closeProfile = document.getElementById('closeProfile');
+const profileForm = document.getElementById('profileForm');
+const pfCancel = document.getElementById('pfCancel');
+
+const logoutBtn = document.getElementById('logoutBtn');
+
+const modalBackdrop = document.getElementById('modalBackdrop');
+const closeModal = document.getElementById('closeModal');
+const exportBtn = document.getElementById('exportBtn');
+
+const modalTitle = document.getElementById('modalTitle');
+const modalTable = document.getElementById('modalTable');
+const rangeInfo = document.getElementById('rangeInfo');
+
+const hrEl = document.getElementById('hr');
+const spo2El = document.getElementById('spo2');
+const bpEl = document.getElementById('bp');
+const tempEl = document.getElementById('temp');
+const hrTimeEl = document.getElementById('hrTime');
+const spo2TimeEl = document.getElementById('spo2Time');
+const bpTimeEl = document.getElementById('bpTime');
+const tempTimeEl = document.getElementById('tempTime');
+
+const recentList = document.getElementById('recentList');
+
+let currentChart = null;
+
+/* ---------- tab toggles ---------- */
+tabLogin.addEventListener('click', ()=>{ tabLogin.classList.add('active'); tabRegister.classList.remove('active'); loginForm.classList.add('active'); registerForm.classList.remove('active'); });
+tabRegister.addEventListener('click', ()=>{ tabRegister.classList.add('active'); tabLogin.classList.remove('active'); registerForm.classList.add('active'); loginForm.classList.remove('active'); });
+
+/* ---------- Auth logic ---------- */
+btnGuest.addEventListener('click', ()=>{
+  const users = loadUsers();
+  if(!users['demo']){
+    users['demo'] = { password:'demo', profile:{ name:'Người dùng Demo', age:30, gender:'Khác', height:170, weight:70, history:'' }, settings:{ thrSpo2:94, thrHrHigh:100 } };
+    saveUsers(users);
+  }
+  setCurrentUser('demo');
+  enterDashboard();
+});
+
+registerBtn.addEventListener('click', ()=>{
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value;
+  if(!u || !p){ registerMessage.innerHTML = '<div style="color:#dc2626">Vui lòng nhập tên đăng nhập & mật khẩu</div>'; return; }
+  const users = loadUsers();
+  if(users[u]){ registerMessage.innerHTML = '<div style="color:#dc2626">Tài khoản đã tồn tại</div>'; return; }
+  users[u] = { password:p, profile:{
+    name: document.getElementById('regName').value || u,
+    age: document.getElementById('regAge').value || '',
+    gender: document.getElementById('regGender').value || '',
+    height: document.getElementById('regHeight').value || '',
+    weight: document.getElementById('regWeight').value || '',
+    history: document.getElementById('regHistory').value || ''
+  }, settings:{ thrSpo2:94, thrHrHigh:100 } };
+  saveUsers(users);
+  setCurrentUser(u);
+  registerMessage.innerHTML = '<div style="color:green">Tạo tài khoản thành công. Đang vào dashboard...</div>';
+  setTimeout(()=> enterDashboard(), 600);
+});
+
+loginForm.addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const users = loadUsers();
+  if(!users[u]){ loginMessage.innerHTML = '<div style="color:#dc2626">Tài khoản không tồn tại</div>'; return; }
+  if(users[u].password !== p){ loginMessage.innerHTML = '<div style="color:#dc2626">Sai mật khẩu</div>'; return; }
+  setCurrentUser(u);
+  loginMessage.innerHTML = '<div style="color:green">Đăng nhập thành công. Đang vào dashboard...</div>';
+  setTimeout(()=> enterDashboard(), 500);
+});
+
+/* ---------- Profile & logout ---------- */
+profileBtn.addEventListener('click', openProfile);
+closeProfile.addEventListener('click', ()=> profileBackdrop.style.display='none');
+pfCancel.addEventListener('click', ()=> profileBackdrop.style.display='none');
+
+profileForm.addEventListener('submit', (e)=>{
+  e.preventDefault(); saveProfileFromForm(); profileBackdrop.style.display='none';
+});
+
+logoutBtn.addEventListener('click', ()=>{
+  if(confirm('Đăng xuất?')){ setCurrentUser(null); showAuth(); }
+});
+
+/* ---------- show/hide auth & dashboard ---------- */
+function showAuth(){ dashboard.style.display='none'; authSection.style.display='flex'; }
+function showDashboard(){ authSection.style.display='none'; dashboard.style.display='block'; }
+
+/* ---------- apply user to UI ---------- */
+function applyUserToUI(){
+  const cur = getCurrentUser();
+  if(!cur) return;
+  const users = loadUsers();
+  const me = users[cur] || {};
+  const p = me.profile || {};
+  userGreet.innerText = `Xin chào, ${p.name || cur}`;
+  userMeta.innerText = p.age ? `${p.age} tuổi • ${p.gender||''}` : '';
+  deviceIdEl.innerText = (me.deviceId) ? me.deviceId : 'R12M-LOCAL';
+  // apply thresholds if exist
+  if(me.settings){ thresholds.spo2_warn = me.settings.thrSpo2 || thresholds.spo2_warn; thresholds.hr_high = me.settings.thrHrHigh || thresholds.hr_high; }
+}
+
+/* ---------- profile save ---------- */
+function openProfile(){
+  const cur = getCurrentUser();
+  if(!cur){ alert('Chưa đăng nhập'); return; }
+  const users = loadUsers();
+  const me = users[cur] || { profile:{} };
+  const p = me.profile || {};
+  document.getElementById('pfName').value = p.name || '';
+  document.getElementById('pfAge').value = p.age || '';
+  document.getElementById('pfGender').value = p.gender || '';
+  document.getElementById('pfHeight').value = p.height || '';
+  document.getElementById('pfWeight').value = p.weight || '';
+  document.getElementById('pfHistory').value = p.history || '';
+  profileBackdrop.style.display = 'flex';
+}
+
+function saveProfileFromForm(){
+  const cur = getCurrentUser();
+  if(!cur) return;
+  const users = loadUsers();
+  users[cur] = users[cur] || {};
+  users[cur].profile = users[cur].profile || {};
+  users[cur].profile.name = document.getElementById('pfName').value;
+  users[cur].profile.age = document.getElementById('pfAge').value;
+  users[cur].profile.gender = document.getElementById('pfGender').value;
+  users[cur].profile.height = document.getElementById('pfHeight').value;
+  users[cur].profile.weight = document.getElementById('pfWeight').value;
+  users[cur].profile.history = document.getElementById('pfHistory').value;
+  saveUsers(users);
+  applyUserToUI();
+  alert('Đã lưu hồ sơ');
+}
+
+/* ---------- simulated hourly data generator (fallback) ---------- */
+function makeHourlySeries(base,variation,min,max,round=0){
+  const arr=[];
+  for(let h=0;h<24;h++){
+    const trend = Math.sin((h/24)*Math.PI*2)*variation*0.4;
+    const noise = (Math.random()*2-1)*variation;
+    let v = base + trend + noise;
+    v = Math.max(min, Math.min(max, v));
+    if(round) v = Math.round(v);
+    else v = Math.round(v*10)/10;
+    arr.push({time: `${String(h).padStart(2,'0')}:00`, value: v});
+  }
+  return arr;
+}
+
+const hourlyData = {
+  hr: [60],
+  spo2: makeHourlySeries(97,3,85,100,0),
+  bp: [],
+  temp: makeHourlySeries(36.6,0.7,35.5,38.5,1)
+};
+for(let i=0;i<24;i++){
+  const sys = Math.round(115 + Math.sin(i/24*Math.PI*2)*8 + (Math.random()*10-5));
+  const dia = Math.round(75 + Math.cos(i/24*Math.PI*2)*6 + (Math.random()*6-3));
+  hourlyData.bp.push({time: `${String(i).padStart(2,'0')}:00`, value: `${sys}/${dia}`, sys, dia});
+}
+
+/* ---------- thresholds ---------- */
+const thresholds = { spo2_warn:94, hr_high:100 };
+
+/* ---------- overview population ---------- */
+function setOverviewValues(){
+  const lastHr = hourlyData.hr[23].value;
+  const lastSpo2 = hourlyData.spo2[23].value;
+  const lastBp = hourlyData.bp[23].value;
+  const lastTemp = hourlyData.temp[23].value;
+  hrEl.innerText = `${lastHr}`;
+  spo2El.innerText = `${lastSpo2}%`;
+  bpEl.innerText = `${lastBp}`;
+  tempEl.innerText = `${lastTemp}°C`;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0') + ':00';
+  hrTimeEl.innerText = hh; spo2TimeEl.innerText = hh; bpTimeEl.innerText = hh; tempTimeEl.innerText = hh;
+
+  // recent list
+  recentList.innerHTML = '';
+  for(let i=23;i>=19;i--){
+    const t = hourlyData.hr[i].time;
+    const r1 = `<tr><td>${t}</td><td>Nhịp tim</td><td>${hourlyData.hr[i].value}</td></tr>`;
+    const r2 = `<tr><td>${t}</td><td>SpO₂</td><td>${hourlyData.spo2[i].value}%</td></tr>`;
+    recentList.insertAdjacentHTML('beforeend', r1);
+    recentList.insertAdjacentHTML('beforeend', r2);
+  }
+}
+
+/* ---------- modal chart logic ---------- */
+function statusFor(type, valueObj){
+  if(type==='spo2'){
+    const v = Number(valueObj.value);
+    if(v >= thresholds.spo2_warn) return ['Bình thường','status-normal'];
+    if(v >= thresholds.spo2_warn-4) return ['Cảnh báo','status-warn'];
+    return ['Nguy hiểm','status-danger'];
+  } else if(type==='hr'){
+    const v = Number(valueObj.value);
+    if(v >= thresholds.hr_high+20) return ['Nguy hiểm','status-danger'];
+    if(v > thresholds.hr_high) return ['Cảnh báo','status-warn'];
+    return ['Bình thường','status-normal'];
+  } else if(type==='bp'){
+    const sys = valueObj.sys;
+    if(sys >= 160) return ['Nguy hiểm','status-danger'];
+    if(sys >= 140) return ['Cảnh báo','status-warn'];
+    return ['Bình thường','status-normal'];
+  } else if(type==='temp'){
+    const v = Number(valueObj.value);
+    if(v >= 38) return ['Sốt','status-warn'];
+    return ['Bình thường','status-normal'];
+  }
+  return ['N/A',''];
+}
+
+let currentChartObj = null;
+let currentModalType = null;
+
+function openModal(type){
+  currentModalType = type;
+  modalBackdrop.style.display = 'flex';
+  modalTitle.innerText = (type==='hr'? 'Nhịp tim (BPM)': type==='spo2'? 'SpO₂ (%)' : type==='bp'? 'Huyết áp (mmHg)': 'Nhiệt độ (°C)');
+  rangeInfo.innerText = `Ngưỡng: ${type==='hr'? thresholds.hr_high : (type==='spo2'? thresholds.spo2_warn : '—')}`;
+
+  let labels = [], data = [];
+  if(type==='hr'){ labels = eradata.hr.map(d=>d.time); data = eradata.hr.map(d=>d.value); }
+  if(type==='spo2'){ labels = eradata.spo2.map(d=>d.time); data = eradata.spo2.map(d=>d.value); }
+  if(type==='bp'){ labels = eradata.bp.map(d=>d.time); data = eradata.bp.map(d=>d.sys); }
+  if(type==='temp'){ labels = eradata.temp.map(d=>d.time); data = eradata.temp.map(d=>d.value); }
+
+  // Chart
+  if(currentChartObj){ currentChartObj.destroy(); currentChartObj = null; }
+  const ctx = document.getElementById('lineChart').getContext('2d');
+  currentChartObj = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets:[{ label: modalTitle.innerText, data, tension:0.3, fill:true, pointRadius:3 }] },
+    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ grid:{color:'#eef2f6'} }, x:{ grid:{display:false} } }, plugins:{ legend:{display:false} } },
+    plugins: [{
+      id: 'thresholdLine',
+      afterDraw(chart){
+        const warn = (type==='hr'? thresholds.hr_high : (type==='spo2'? thresholds.spo2_warn : null));
+        if(warn===null || warn===undefined) return;
+        const yScale = chart.scales.y;
+        const yPixel = yScale.getPixelForValue(warn);
+        const ctx = chart.ctx;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(chart.chartArea.left, yPixel);
+        ctx.lineTo(chart.chartArea.right, yPixel);
+        ctx.strokeStyle = 'rgba(255,165,0,0.9)';
+        ctx.setLineDash([6,4]);
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255,165,0,0.9)';
+        ctx.font = '12px Poppins, Arial';
+        ctx.fillText(`Ngưỡng (${warn})`, chart.chartArea.right - 100, yPixel - 6);
+        ctx.restore();
+      }
+    }]
+  });
+
+  // populate table
+  modalTable.innerHTML = '';
+  const arr = (type==='hr'? hourlyData.hr : type==='spo2'? hourlyData.spo2 : type==='bp'? hourlyData.bp : hourlyData.temp);
+  for(const r of arr){
+    let val = (type==='spo2')? r.value + '%' : (type==='temp'? r.value + '°C' : (type==='bp'? r.value : r.value));
+    const st = statusFor(type, r);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.time}</td><td>${val}</td><td class="${st[1]}">${st[0]}</td>`;
+    modalTable.appendChild(tr);
+  }
+
+  // export
+  exportBtn.onclick = ()=>{
+    let csv = 'time,value,status\n';
+    for(const r of arr){
+      const v = (type==='spo2')? r.value + '%' : (type==='temp'? r.value + '°C' : (type==='bp'? r.value : r.value));
+      const st = statusFor(type,r)[0];
+      csv += `${r.time},${v},${st}\n`;
+    }
+    const blob = new Blob([csv],{type:'text/csv'}), url = URL.createObjectURL(blob), a=document.createElement('a');
+    a.href = url; a.download = `${type}_data.csv`; a.click(); URL.revokeObjectURL(url);
+  };
+}
+
+closeModal.addEventListener('click', ()=> modalBackdrop.style.display='none');
+modalBackdrop.addEventListener('click', (e)=> { if(e.target===modalBackdrop) modalBackdrop.style.display='none'; });
+
+document.querySelectorAll('.card').forEach(card=>{
+  card.addEventListener('click', ()=> openModal(card.dataset.type));
+});
+
+
+function connectEra(){
+      let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
+      const eraWidget = new EraWidget({
         token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
         deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
       });
@@ -106,47 +633,62 @@
         needHistoryConfigs: false,
         needActions: false,
         maxRealtimeConfigsCount: 8,
-      });
-    if (window.ERaWidget) {
-      console.log("✅ Đã kết nối với ERA!");
-      window.ERaWidget.on("sensor/data", (topic, payload) => {
-        try {
-          const data = JSON.parse(payload);
-          console.log("📩 Dữ liệu nhận từ ERA:", data);
+        onConfiguration: (conf) => { 
+           configTemp = configuration.realtime_configs[0];
+          configHB   = configuration.realtime_configs[1];
+          configSPO2 = configuration.realtime_configs[2];
+          configBP   = configuration.realtime_configs[3];
+          
+          console.log('Era configuration', conf); },
+        onValues: (values) => {
+        const valueTemp = values[configTemp?.id]?.value;
+        const valueHB   = values[configHB?.id]?.value;
+        const valueSPO2 = values[configSPO2?.id]?.value;
+        const valueBP   = values[configBP?.id]?.value;
+        if (valueTemp !== undefined) tempEl.innerHTML = `${valueTemp} °C`;
+        if (valueHB !== undefined)   hrEl.innerHTML   = `${valueHB} bpm`;
+        if (valueSPO2 !== undefined) spo2El.innerHTML = `${valueSPO2} %`;
+        if (valueBP !== undefined)   bpEl.innerHTML   = `${valueBP} mmHg`;
+        let eradata1 ={valueBP,valueTemp,valueSPO2,valueHB};
+        console.log('Era values:', values);},
+        
+        })};
 
-          // --- cập nhật các giá trị ---
-          if (data.temp) {
-            document.getElementById("val-temp").textContent = data.temp + " °C";
-            setOnline("temp");
-          }
-          if (data.spo2) {
-            document.getElementById("val-spo2").textContent = data.spo2 + " %";
-            setOnline("spo2");
-          }
-          if (data.hr) {
-            document.getElementById("val-hr").textContent = data.hr + " bpm";
-            setOnline("hr");
-          }
-          if (data.bp) {
-            document.getElementById("val-bp").textContent = data.bp;
-            setOnline("bp");
-          }
-        } catch (e) {
-          console.error("❌ Lỗi đọc dữ liệu ERA:", e);
-        }
-      });
-    } else {
-      console.error("❌ Không có ERA widget! Hãy mở file này trong ERA Dashboard.");
-    }
+/* ---------- UI update helpers ---------- */
+function updateHR(v){
+  hrEl.innerText = v;
+  hrTimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
+function updateSpO2(v){
+  spo2El.innerText = `${v}%`;
+  spo2TimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
+function updateBP(s){
+  bpEl.innerText = s;
+  bpTimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
+function updateTemp(t){
+  tempEl.innerText = `${t}°C`;
+  tempTimeEl.innerText = new Date().toTimeString().slice(0,5);
+}
 
-    // --- đổi trạng thái thiết bị ---
-    function setOnline(id) {
-      const el = document.getElementById(`status-${id}`);
-      el.textContent = "Trực tuyến";
-      el.classList.remove("offline");
-      el.classList.add("online");
-    }
-  </script>
+/* ---------- enter dashboard ---------- */
+function enterDashboard(){
+  applyUserToUI();
+  //setOverviewValues();
+  showDashboard();
+  connectEra();
+}
+
+/* ---------- startup: if already logged in show dashboard ---------- */
+window.addEventListener('load', ()=>{
+  if(getCurrentUser()){ enterDashboard(); } else { showAuth(); }
+});
+
+</script>
+<script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
+
 
