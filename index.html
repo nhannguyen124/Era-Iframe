@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MSVitaSync Dashboard</title>
   <style>
-    body {
+    * {
+      box-sizing: border-box;
       font-family: "Poppins", sans-serif;
-      background: #f2f9ff;
+    }
+    body {
+      background: linear-gradient(to right, #dff6ff, #e9faff);
       margin: 0;
       padding: 0;
     }
     .container {
-      max-width: 900px;
+      max-width: 950px;
       margin: 40px auto;
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      padding: 20px 30px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      padding: 24px 32px;
     }
     h1 {
       text-align: center;
-      color: #0078d7;
+      color: #0077b6;
+      margin-bottom: 20px;
     }
     table {
       width: 100%;
@@ -35,18 +39,23 @@
     }
     th {
       background: #f0f8ff;
-      color: #0078d7;
+      color: #0077b6;
     }
     .status {
       padding: 6px 12px;
       border-radius: 12px;
       color: white;
+      font-size: 13px;
     }
     .online {
       background: #28a745;
     }
     .offline {
       background: #dc3545;
+    }
+    .value {
+      font-weight: 600;
+      color: #333;
     }
   </style>
 </head>
@@ -58,54 +67,74 @@
         <tr>
           <th>Thiết bị</th>
           <th>Trạng thái</th>
-          <th>Giá trị</th>
+          <th>Giá trị đo</th>
         </tr>
       </thead>
-      <tbody id="deviceData">
-        <tr><td>Nhiệt độ</td><td><span class="status offline">Ngoại tuyến</span></td><td id="temp">--</td></tr>
-        <tr><td>SpO₂</td><td><span class="status offline">Ngoại tuyến</span></td><td id="spo2">--</td></tr>
-        <tr><td>Nhịp tim</td><td><span class="status offline">Ngoại tuyến</span></td><td id="hr">--</td></tr>
-        <tr><td>Huyết áp</td><td><span class="status offline">Ngoại tuyến</span></td><td id="bp">--</td></tr>
+      <tbody>
+        <tr>
+          <td>Nhiệt độ</td>
+          <td><span id="status-temp" class="status offline">Ngoại tuyến</span></td>
+          <td class="value" id="val-temp">--</td>
+        </tr>
+        <tr>
+          <td>SpO₂</td>
+          <td><span id="status-spo2" class="status offline">Ngoại tuyến</span></td>
+          <td class="value" id="val-spo2">--</td>
+        </tr>
+        <tr>
+          <td>Nhịp tim</td>
+          <td><span id="status-hr" class="status offline">Ngoại tuyến</span></td>
+          <td class="value" id="val-hr">--</td>
+        </tr>
+        <tr>
+          <td>Huyết áp</td>
+          <td><span id="status-bp" class="status offline">Ngoại tuyến</span></td>
+          <td class="value" id="val-bp">--</td>
+        </tr>
       </tbody>
     </table>
   </div>
 
   <script>
-    // --- CHỈ KẾT NỐI THẬT, KHÔNG GIẢ LẬP ---
+    // --- Kết nối dữ liệu thật từ ERA ---
     if (window.ERaWidget) {
-      console.log("✅ ERA connected!");
+      console.log("✅ Đã kết nối với ERA!");
       window.ERaWidget.on("sensor/data", (topic, payload) => {
         try {
           const data = JSON.parse(payload);
+          console.log("📩 Dữ liệu nhận từ ERA:", data);
 
-          // cập nhật giá trị
+          // --- cập nhật các giá trị ---
           if (data.temp) {
-            document.getElementById("temp").textContent = data.temp + " °C";
-            document.querySelectorAll(".status")[0].className = "status online";
-            document.querySelectorAll(".status")[0].textContent = "Trực tuyến";
+            document.getElementById("val-temp").textContent = data.temp + " °C";
+            setOnline("temp");
           }
           if (data.spo2) {
-            document.getElementById("spo2").textContent = data.spo2 + " %";
-            document.querySelectorAll(".status")[1].className = "status online";
-            document.querySelectorAll(".status")[1].textContent = "Trực tuyến";
+            document.getElementById("val-spo2").textContent = data.spo2 + " %";
+            setOnline("spo2");
           }
           if (data.hr) {
-            document.getElementById("hr").textContent = data.hr + " bpm";
-            document.querySelectorAll(".status")[2].className = "status online";
-            document.querySelectorAll(".status")[2].textContent = "Trực tuyến";
+            document.getElementById("val-hr").textContent = data.hr + " bpm";
+            setOnline("hr");
           }
           if (data.bp) {
-            document.getElementById("bp").textContent = data.bp;
-            document.querySelectorAll(".status")[3].className = "status online";
-            document.querySelectorAll(".status")[3].textContent = "Trực tuyến";
+            document.getElementById("val-bp").textContent = data.bp;
+            setOnline("bp");
           }
-
-        } catch (err) {
-          console.error("Lỗi parse dữ liệu từ ERA:", err);
+        } catch (e) {
+          console.error("❌ Lỗi đọc dữ liệu ERA:", e);
         }
       });
     } else {
-      console.error("❌ ERA not connected! Hãy chạy trong Dashboard ERA (iframe).");
+      console.error("❌ Không có ERA widget! Hãy mở file này trong ERA Dashboard.");
+    }
+
+    // --- đổi trạng thái thiết bị ---
+    function setOnline(id) {
+      const el = document.getElementById(`status-${id}`);
+      el.textContent = "Trực tuyến";
+      el.classList.remove("offline");
+      el.classList.add("online");
     }
   </script>
 </body>
