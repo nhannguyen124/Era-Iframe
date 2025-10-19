@@ -644,63 +644,17 @@ function connectEra(){
           
           console.log('Era configuration', conf); },
         onValues: (values) => {
-          // Map based on your device realtime config ids; adapt if needed.
-          // This assumes your realtime configs provide keys for HR, SPO2, BP, TEMP.
-          // We'll update UI when values arrive.
-          // Example mapping: values = { 'configId1': { value: 78 }, ... }
-          // For safety, find keys that look like hr/spo2/temp if available (or adapt).
-          console.log('Era values:', values);
-          // You must set mapping according to your device configuration
-          // Example (pseudo):
-          // if(values['hrConfigId']) updateHR(values['hrConfigId'].value);
-          // For now, attempt to parse common keys:
-          Object.keys(values).forEach(k=>{
-            const v = values[k] && values[k].value;
-            if(v===undefined) return;
-            // Heuristic: if v within 30-220 treat as HR; 80-100 as spo2; if string with '/' as BP
-            if(typeof v === 'number'){
-              if(v >= 30 && v <= 220){
-                updateHR(v);
-              } else if(v >= 80 && v <= 100){
-                updateSpO2(v);
-              } else if(v >= 30 && v <= 45){ // maybe temp (C) low bound
-                updateTemp(v);
-              } else {
-                // default: log
-                console.log('Unmapped numeric value', k, v);
-              }
-            } else if(typeof v === 'string' && v.includes('/')){
-              // e.g. "120/80"
-              updateBP(v);
-            }
-          });
-          eraConnected = true;
-        }
-      });
-      console.log('Era widget init called');
-      return;
-    }
-
-  // Fallback: simulated realtime updates (every 3s)
-  console.log('EraWidget not available — using simulated realtime updates');
-  setInterval(()=>{
-    // random small variations
-    const hr = Math.round(hourlyData.hr[23].value + (Math.random()*6-3));
-    const spo2 = Math.round(hourlyData.spo2[23].value + (Math.random()*2-1));
-    const temp = Math.round((Number(hourlyData.temp[23].value) + (Math.random()*0.4-0.2))*10)/10;
-    const sys = Math.round(115 + (Math.random()*10-5));
-    const dia = Math.round(75 + (Math.random()*8-4));
-    updateHR(hr);
-    updateSpO2(spo2);
-    updateTemp(temp);
-    updateBP(`${sys}/${dia}`);
-    // push into hourlyData arrays (shift left)
-    hourlyData.hr.shift(); hourlyData.hr.push({time: new Date().toTimeString().slice(0,5), value: hr});
-    hourlyData.spo2.shift(); hourlyData.spo2.push({time: new Date().toTimeString().slice(0,5), value: spo2});
-    hourlyData.temp.shift(); hourlyData.temp.push({time: new Date().toTimeString().slice(0,5), value: temp});
-    hourlyData.bp.shift(); hourlyData.bp.push({time: new Date().toTimeString().slice(0,5), value: `${sys}/${dia}`, sys, dia});
-    setOverviewValues();
-  }, 3000);
+        const valueTemp = values[configTemp?.id]?.value;
+        const valueHB   = values[configHB?.id]?.value;
+        const valueSPO2 = values[configSPO2?.id]?.value;
+        const valueBP   = values[configBP?.id]?.value;
+        if (valueTemp !== undefined) temp.innerHTML = `${valueTemp} °C`;
+        if (valueHB !== undefined)   hb.innerHTML   = `${valueHB} bpm`;
+        if (valueSPO2 !== undefined) spo2.innerHTML = `${valueSPO2} %`;
+        if (valueBP !== undefined)   bp.innerHTML   = `${valueBP} mmHg`;
+        console.log('Era values:', values);},
+        
+        })};
 
 /* ---------- UI update helpers ---------- */
 function updateHR(v){
