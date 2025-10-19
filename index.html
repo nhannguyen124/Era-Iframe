@@ -97,6 +97,16 @@
 
   <script>
     // --- Kết nối dữ liệu thật từ ERA ---
+    const eraWidget = new EraWidget({
+        token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",  // ⚠️ Thay token của bạn
+        deviceId: "15794"                               // ⚠️ Thay ID thiết bị của bạn
+      });
+      eraWidget.init({
+        needRealtimeConfigs: true,
+        needHistoryConfigs: false,
+        needActions: false,
+        maxRealtimeConfigsCount: 8,
+      });
     if (window.ERaWidget) {
       console.log("✅ Đã kết nối với ERA!");
       window.ERaWidget.on("sensor/data", (topic, payload) => {
@@ -139,3 +149,4 @@
   </script>
 </body>
 </html>
+
