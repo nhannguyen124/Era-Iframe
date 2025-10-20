@@ -650,10 +650,10 @@ function connectEra(){
           
           console.log('Era configuration', conf); },
         onValues: (values) => {
-        const valueTemp = values[configTemp.id].value;
-        const valueHB   = values[configHB.id].value;
-        const valueSPO2 = values[configSPO2.id].value;
-        const valueBP   = values[configBP.id].value;
+        const valueTemp = values[configTemp?.id]?.value;
+        const valueHB   = values[configHB?.id]?.value;
+        const valueSPO2 = values[configSPO2?.id]?.value;
+        const valueBP   = values[configBP?.id]?.value;
         temp.innerText = `${valueTemp} °C`;
         hb.innerText   = `${valueHB} bpm`;
         spo2.innerText = `${valueSPO2} %`;
