@@ -643,21 +643,21 @@ function connectEra(){
         needActions: false,
         maxRealtimeConfigsCount: 8,
         onConfiguration: (conf) => { 
-           configTemp = configuration.realtime_configs[0];
-          configHB   = configuration.realtime_configs[1];
+          configTemp = configuration.realtime_configs[0];
+          configHR   = configuration.realtime_configs[1];
           configSPO2 = configuration.realtime_configs[2];
           configBP   = configuration.realtime_configs[3];
           
           console.log('Era configuration', conf); },
         onValues: (values) => {
         const valueTemp = values[configTemp?.id]?.value;
-        const valueHB   = values[configHB?.id]?.value;
+        const valueHR   = values[configHR?.id]?.value;
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
-        temp.innerHTML = `${valueTemp} °C`;
-        hr.innerHTML   = `${valueHB} bpm`;
-        spo2.innerHTML = `${valueSPO2} %`;
-        bp.innerHTML   = `${valueBP} mmHg`;
+        if (valueTemp !== undefined) tempEl.innerHTML = `${valueTemp} °C`;
+          if (valueHR !== undefined)   hrEl.innerHTML   = `${valueHB} bpm`;
+          if (valueSPO2 !== undefined) spo2El.innerHTML = `${valueSPO2} %`;
+          if (valueBP !== undefined)   bpEl.innerHTML   = `${valueBP} mmHg`;
         console.log('Era values:', values);},
         
         })};  
@@ -697,8 +697,6 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
-
-
 
 
 
