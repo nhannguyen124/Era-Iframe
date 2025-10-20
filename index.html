@@ -479,7 +479,15 @@ function makeHourlySeries(base,variation,min,max,round=0){
   return arr;
 }
 
-let EraData = [];
+let EraData = {
+  hr: [],
+      spo2 : [],
+      temp : [],
+      bp: {
+        sys :[],
+        dia : []
+      }
+};
 const hourlyData = {
   hr: makeHourlySeries(60,3,50,140,0),
   spo2: makeHourlySeries(97,3,90,100,0),
@@ -646,13 +654,13 @@ function connectEra(){
         const valueHB   = values[configHB.id].value;
         const valueSPO2 = values[configSPO2.id].value;
         const valueBP   = values[configBP.id].value;
-        tempEl.innerHTML = `${valueTemp} °C`;
-        hrEl.innerHTML   = `${valueHB} bpm`;
-        spo2El.innerHTML = `${valueSPO2} %`;
-        bpEl.innerHTML   = `${valueBP} mmHg`;
+        temp.innerText = `${valueTemp} °C`;
+        hb.innerText   = `${valueHB} bpm`;
+        spo2.innerText = `${valueSPO2} %`;
+        bp.innerText   = `${valueBP} mmHg`;
         console.log('Era values:', values);},
         
-        })};
+        })};  
 
 /* ---------- UI update helpers ---------- */
 function updateHR(v){
