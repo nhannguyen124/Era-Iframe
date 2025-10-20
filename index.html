@@ -654,10 +654,10 @@ function connectEra(){
         const valueHB   = values[configHB?.id]?.value;
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
-        temp.innerText = `${valueTemp} °C`;
-        hb.innerText   = `${valueHB} bpm`;
-        spo2.innerText = `${valueSPO2} %`;
-        bp.innerText   = `${valueBP} mmHg`;
+        temp.innerHTML = `${valueTemp} °C`;
+        hb.innerHTML   = `${valueHB} bpm`;
+        spo2.innerHTML = `${valueSPO2} %`;
+        bp.innerHTML   = `${valueBP} mmHg`;
         console.log('Era values:', values);},
         
         })};  
@@ -697,6 +697,7 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
 
 
 
