@@ -656,6 +656,12 @@ function connectEra(){
           lastHr   = valueHR  ;
           lastSpo2 = valueSPO2;
           lastBp   = valueBP  ;
+          recentList.innerHTML = '';
+          var date =new Date();
+          var hour =date.getHours();
+          var mins =date.getMinutes();
+          recentList.insertAdjacentHTML('beforeend',1 );
+
         console.log('Era values:', values);},
         
         })};
