@@ -495,7 +495,7 @@ for(let i=0;i<24;i++){
 /* ---------- thresholds ---------- */
 const thresholds = { spo2_warn:94, hr_high:100 };
 
-/* ---------- overview population ---------- */
+/* ---------- overview population ---------- 
 function setOverviewValues(){
   const lastHr = hourlyData.hr[23].value;
   const lastSpo2 = hourlyData.spo2[23].value;
@@ -519,6 +519,7 @@ function setOverviewValues(){
     recentList.insertAdjacentHTML('beforeend', r2);
   }
 }
+  */
 
 /* ---------- modal chart logic ---------- */
 function statusFor(type, valueObj){
@@ -646,10 +647,10 @@ function connectEra(){
         const valueHR   = values[configHR?.id]?.value;
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
-        if (valueTemp !== lastTemp) tempEl.innerHTML = `${valueTemp} °C`;
-          if (valueHR !== lastHr)   hrEl.innerHTML   = `${valueHB} bpm`;
-          if (valueSPO2 !== lastSpo2) spo2El.innerHTML = `${valueSPO2} %`;
-          if (valueBP !== lastBp)   bpEl.innerHTML   = `${valueBP} mmHg`;
+        if (valueTemp != lastTemp) tempEl.innerHTML = `${valueTemp} °C`;
+          if (valueHR != lastHr)   hrEl.innerHTML   = `${valueHB} bpm`;
+          if (valueSPO2 != lastSpo2) spo2El.innerHTML = `${valueSPO2} %`;
+          if (valueBP != lastBp)   bpEl.innerHTML   = `${valueBP} mmHg`;
           lastTemp = valueTemp;
           lastHr   = valueHR  ;
           lastSpo2 = valueSPO2;
