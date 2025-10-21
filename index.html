@@ -495,31 +495,10 @@ for(let i=0;i<24;i++){
 /* ---------- thresholds ---------- */
 const thresholds = { spo2_warn:94, hr_high:100 };
 
-/* ---------- overview population ---------- 
+/* ---------- overview population ----------*/
 function setOverviewValues(){
-  const lastHr = hourlyData.hr[23].value;
-  const lastSpo2 = hourlyData.spo2[23].value;
-  const lastBp = hourlyData.bp[23].value;
-  const lastTemp = hourlyData.temp[23].value;
-  hrEl.innerText = `${lastHr}`;
-  spo2El.innerText = `${lastSpo2}%`;
-  bpEl.innerText = `${lastBp}`;
-  tempEl.innerText = `${lastTemp}°C`;
-  const now = new Date();
-  const hh = String(now.getHours()).padStart(2,'0') + ':00';
-  hrTimeEl.innerText = hh; spo2TimeEl.innerText = hh; bpTimeEl.innerText = hh; tempTimeEl.innerText = hh;
-
-  // recent list
-  recentList.innerHTML = '';
-  for(let i=23;i>=19;i--){
-    const t = hourlyData.hr[i].time;
-    const r1 = `<tr><td>${t}</td><td>Nhịp tim</td><td>${hourlyData.hr[i].value}</td></tr>`;
-    const r2 = `<tr><td>${t}</td><td>SpO₂</td><td>${hourlyData.spo2[i].value}%</td></tr>`;
-    recentList.insertAdjacentHTML('beforeend', r1);
-    recentList.insertAdjacentHTML('beforeend', r2);
-  }
+recent("Huyết áp",valueBP);
 }
-  */
 
 /* ---------- modal chart logic ---------- */
 function statusFor(type, valueObj){
@@ -623,7 +602,14 @@ document.querySelectorAll('.card').forEach(card=>{
   card.addEventListener('click', ()=> openModal(card.dataset.type));
 });
 
-
+function recent(a,b) {
+  recentList.innerHTML = '';
+          var date =new Date();
+          var hour =date.getHours();
+          var mins =date.getMinutes();
+          let r1 = `<tr><td>${hour + " : " + mins}<td><ta>${a}<ta><td>${b}<td><tr>`;
+          recentList.insertAdjacentHTML('beforeend',r1);
+}
 function connectEra(){
       let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
       let lastBp,lastHr,lastTemp,lastSpo2;
@@ -634,8 +620,9 @@ function connectEra(){
       eraWidget.init({
         needRealtimeConfigs: true,
         needHistoryConfigs: false,
-        needActions: false,
+        needActions: true,
         maxRealtimeConfigsCount: 8,
+        maxActions : 6,
         onConfiguration: (configuration) => { 
           configTemp = configuration.realtime_configs[0];
           configHR   = configuration.realtime_configs[1];
@@ -648,19 +635,27 @@ function connectEra(){
         const valueHR   = values[configHR?.id]?.value;
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
-        if (valueTemp != lastTemp) tempEl.innerHTML = `${valueTemp} °C`;
-          if (valueHR != lastHr)   hrEl.innerHTML   = `${valueHR} bpm`;
-          if (valueSPO2 != lastSpo2) spo2El.innerHTML = `${valueSPO2} %`;
-          if (valueBP != lastBp)   bpEl.innerHTML   = `${valueBP} mmHg`;
+        if (valueTemp != lastTemp){
+          tempEl.innerHTML = `${valueTemp} °C`;
+          recent("Nhiệt độ",valueTemp);
+        }
+          if (valueHR != lastHr){
+            hrEl.innerHTML   = `${valueHR} bpm`;
+            recent("Nhịp Tim",valueHR);
+          }
+          if (valueSPO2 != lastSpo2){
+            spo2El.innerHTML = `${valueSPO2} %`;
+            recent("SPO2",valueSPO2);
+          }
+          if (valueBP != lastBp){
+            bpEl.innerHTML   = `${valueBP} mmHg`;
+            recent("Huyết áp",valueBP);
+          }
           lastTemp = valueTemp;
           lastHr   = valueHR  ;
           lastSpo2 = valueSPO2;
           lastBp   = valueBP  ;
-          recentList.innerHTML = '';
-          var date =new Date();
-          var hour =date.getHours();
-          var mins =date.getMinutes();
-          recentList.insertAdjacentHTML('beforeend',1 );
+          
 
         console.log('Era values:', values);},
         
