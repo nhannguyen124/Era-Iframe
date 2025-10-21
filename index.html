@@ -626,6 +626,7 @@ document.querySelectorAll('.card').forEach(card=>{
 
 function connectEra(){
       let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
+      let lastBp,lastHr,lastTemp,lastSpo2;
       const eraWidget = new EraWidget({
         token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
         deviceId: "15794"                             
