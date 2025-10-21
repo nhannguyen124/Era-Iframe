@@ -649,7 +649,7 @@ function connectEra(){
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
         if (valueTemp != lastTemp) tempEl.innerHTML = `${valueTemp} °C`;
-          if (valueHR != lastHr)   hrEl.innerHTML   = `${valueHB} bpm`;
+          if (valueHR != lastHr)   hrEl.innerHTML   = `${valueHR} bpm`;
           if (valueSPO2 != lastSpo2) spo2El.innerHTML = `${valueSPO2} %`;
           if (valueBP != lastBp)   bpEl.innerHTML   = `${valueBP} mmHg`;
           lastTemp = valueTemp;
