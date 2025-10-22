@@ -251,15 +251,8 @@
             </div>
           </div>
           <div style="height:280px"><canvas id="lineChart"></canvas></div>
+          <div id="dataTable"></div>
         </div>
-        <div style="width:320px;padding-left:12px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <div style="font-weight:700">Bảng số liệu</div>
-            <button id="exportBtn" class="btn">Tải CSV</button>
-          </div>
-          <div style="height:260px;overflow:auto">
-            <table><thead><tr><th>Thời gian</th><th>Giá trị</th><th>Trạng thái</th></tr></thead><tbody id="modalTable"></tbody></table>
-          </div>
         </div>
       </div>
     </div>
@@ -293,13 +286,7 @@
   </div>
 
 <script>
-/*
-  All-in-one:
-  - Auth (register/login) saved to localStorage (mv_users, mv_current_user)
-  - Dashboard (shows hr, spo2, bp, temp)
-  - connectEra(): if EraWidget exists, uses it; otherwise fallback to simulated realtime
-  - Chart modal, CSV export
-*/
+
 
 /* ---------- storage helpers ---------- */
 function loadUsers(){ try{ return JSON.parse(localStorage.getItem('mv_users')||'{}'); }catch(e){return{};} }
@@ -479,26 +466,33 @@ function makeHourlySeries(base,variation,min,max,round=0){
   return arr;
 }
 
-let EraData = [];
+var date =new Date();
+var hour =date.getHours();
+var mins =date.getMinutes();
+var realtime = hour+";"+mins;
 const hourlyData = {
-  hr: makeHourlySeries(60,3,50,140,0),
-  spo2: makeHourlySeries(97,3,90,100,0),
-  bp: [],
-  temp: makeHourlySeries(36.6,0.7,35.5,38.5,1)
+  hr: {
+    value :[],
+    time  :[]
+  },
+  spo2: {
+    value :[],
+    time  :[]
+  },
+  bp: {
+    value :[],
+    time  :[]
+  },
+  temp:{
+    value :[],
+    time  :[]
+  }
 };
-for(let i=0;i<24;i++){
-  const sys = Math.round(115 + Math.sin(i/24*Math.PI*2)*8 + (Math.random()*10-5));
-  const dia = Math.round(75 + Math.cos(i/24*Math.PI*2)*6 + (Math.random()*6-3));
-  hourlyData.bp.push({time: `${String(i).padStart(2,'0')}:00`, value: `${sys}/${dia}`, sys, dia});
-}
 
 /* ---------- thresholds ---------- */
 const thresholds = { spo2_warn:94, hr_high:100 };
 
 /* ---------- overview population ----------*/
-function setOverviewValues(){
-recent("Huyết áp",valueBP);
-}
 
 /* ---------- modal chart logic ---------- */
 function statusFor(type, valueObj){
@@ -527,72 +521,153 @@ function statusFor(type, valueObj){
 
 let currentChartObj = null;
 let currentModalType = null;
-
 function openModal(type){
   currentModalType = type;
   modalBackdrop.style.display = 'flex';
-  modalTitle.innerText = (type==='hr'? 'Nhịp tim (BPM)': type==='spo2'? 'SpO₂ (%)' : type==='bp'? 'Huyết áp (mmHg)': 'Nhiệt độ (°C)');
-  rangeInfo.innerText = `Ngưỡng: ${type==='hr'? thresholds.hr_high : (type==='spo2'? thresholds.spo2_warn : '—')}`;
 
-  let labels = [], data = [];
-  if(type==='hr'){ labels = hourlyData.hr.map(d=>d.time); data = hourlyData.hr.map(d=>d.value); }
-  if(type==='spo2'){ labels = hourlyData.spo2.map(d=>d.time); data = hourlyData.spo2.map(d=>d.value); }
-  if(type==='bp'){ labels = hourlyData.bp.map(d=>d.time); data = hourlyData.bp.map(d=>d.sys); }
-  if(type==='temp'){ labels = hourlyData.temp.map(d=>d.time); data = hourlyData.temp.map(d=>d.value); }
+  let title = '', unit = '', color = '', data = [], label = [], upper = null, lower = null, dataset = [];
 
-  // Chart
-  if(currentChartObj){ currentChartObj.destroy(); currentChartObj = null; }
-  const ctx = document.getElementById('lineChart').getContext('2d');
-  currentChartObj = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets:[{ label: modalTitle.innerText, data, tension:0.3, fill:true, pointRadius:3 }] },
-    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ grid:{color:'#eef2f6'} }, x:{ grid:{display:false} } }, plugins:{ legend:{display:false} } },
-    plugins: [{
-      id: 'thresholdLine',
-      afterDraw(chart){
-        const warn = (type==='hr'? thresholds.hr_high : (type==='spo2'? thresholds.spo2_warn : null));
-        if(warn===null || warn===undefined) return;
-        const yScale = chart.scales.y;
-        const yPixel = yScale.getPixelForValue(warn);
-        const ctx = chart.ctx;
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(chart.chartArea.left, yPixel);
-        ctx.lineTo(chart.chartArea.right, yPixel);
-        ctx.strokeStyle = 'rgba(255,165,0,0.9)';
-        ctx.setLineDash([6,4]);
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(255,165,0,0.9)';
-        ctx.font = '12px Poppins, Arial';
-        ctx.fillText(`Ngưỡng (${warn})`, chart.chartArea.right - 100, yPixel - 6);
-        ctx.restore();
-      }
-    }]
-  });
-
-  // populate table
-  modalTable.innerHTML = '';
-  const arr = (type==='hr'? hourlyData.hr : type==='spo2'? hourlyData.spo2 : type==='bp'? hourlyData.bp : hourlyData.temp);
-  for(const r of arr){
-    let val = (type==='spo2')? r.value + '%' : (type==='temp'? r.value + '°C' : (type==='bp'? r.value : r.value));
-    const st = statusFor(type, r);
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${r.time}</td><td>${val}</td><td class="${st[1]}">${st[0]}</td>`;
-    modalTable.appendChild(tr);
+  if(type === 'hr'){
+    title = 'Biểu đồ nhịp tim';
+    unit = 'BPM';
+    color = '#3b82f6';
+    dataset = hourlyData.hr;
+    upper = 100; lower = 40;
+  }
+  else if(type === 'spo2'){
+    title = 'Biểu đồ SpO₂';
+    unit = '%';
+    color = '#10b981';
+    dataset = hourlyData.spo2;
+    upper = 100; lower = 90;
+  }
+  else if(type === 'bp'){
+    title = 'Biểu đồ huyết áp (tâm thu)';
+    unit = 'mmHg';
+    color = '#ef4444';
+    dataset = hourlyData.bp;
+    upper = 160; lower = 90;
+  }
+  else if(type === 'temp'){
+    title = 'Biểu đồ nhiệt độ cơ thể';
+    unit = '°C';
+    color = '#f59e0b';
+    dataset = hourlyData.temp;
+    upper = 38; lower = 35;
   }
 
-  // export
-  exportBtn.onclick = ()=>{
-    let csv = 'time,value,status\n';
-    for(const r of arr){
-      const v = (type==='spo2')? r.value + '%' : (type==='temp'? r.value + '°C' : (type==='bp'? r.value : r.value));
-      const st = statusFor(type,r)[0];
-      csv += `${r.time},${v},${st}\n`;
+  const labels = dataset.time;
+  const values = dataset.value;
+
+  modalTitle.innerText = title;
+  rangeInfo.innerText = (upper && lower) ? `Ngưỡng cao: ${upper} ${unit} | Ngưỡng thấp: ${lower} ${unit}` : '';
+
+  // hủy biểu đồ cũ nếu có
+  if(currentChartObj){ currentChartObj.destroy(); currentChartObj = null; }
+
+  const ctx = document.getElementById('lineChart').getContext('2d');
+
+  // biểu đồ chính
+  currentChartObj = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: title,
+          data: values,
+          borderColor: color,
+          backgroundColor: `${color}33`,
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: color,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: `Ngưỡng cao (${upper} ${unit})`,
+          data: Array(labels.length).fill(upper),
+          borderColor: 'rgba(255,0,0,0.6)',
+          borderDash: [5,5],
+          borderWidth: 1.5,
+          pointRadius: 0
+        },
+        {
+          label: `Ngưỡng thấp (${lower} ${unit})`,
+          data: Array(labels.length).fill(lower),
+          borderColor: 'rgba(0,150,255,0.6)',
+          borderDash: [5,5],
+          borderWidth: 1.5,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
+        },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y} ${unit} lúc ${ctx.label}`
+          },
+          backgroundColor: 'rgba(0,0,0,0.75)',
+          titleColor: '#fff',
+          bodyColor: '#fff'
+        }
+      },
+      scales: {
+        y: {
+          grid: { color: '#eef2f6' },
+          title: { display: true, text: unit }
+        },
+        x: {
+          grid: { display: false },
+          title: { display: true, text: 'Thời gian' }
+        }
+      }
     }
-    const blob = new Blob([csv],{type:'text/csv'}), url = URL.createObjectURL(blob), a=document.createElement('a');
-    a.href = url; a.download = `${type}_data.csv`; a.click(); URL.revokeObjectURL(url);
-  };
+  });
+
+  // ----------- BẢNG DỮ LIỆU DƯỚI BIỂU ĐỒ -----------
+  const tableWrap = document.getElementById('dataTable');
+if (tableWrap) {
+  // 🔹 Xóa bảng cũ (nếu có)
+  tableWrap.innerHTML = '';
+
+  let rowsHTML = "";
+  values.forEach(d => {
+    const [statusTxt, statusClass] = statusFor(type,d);
+    const color =
+      statusClass === "status-danger" ? "#dc2626" :
+      statusClass === "status-warn"   ? "#f59e0b" : "#16a34a";
+    rowsHTML += `
+      <tr>
+        <td style="padding:6px 8px;border-bottom:1px solid #f0f0f0;">${labels[values.indexOf(d)]}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #f0f0f0;">${d} ${unit || ""}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #f0f0f0;color:${color};">${statusTxt}</td>
+      </tr>`;
+  });
+
+  tableWrap.innerHTML = `
+    <h4 style="margin-top:20px; font-size:16px;">Bảng số liệu</h4>
+    <div style="max-height:260px; overflow-y:auto; border:1px solid #eee; border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead style="background:#f9fafb; position:sticky; top:0; z-index:2;">
+          <tr>
+            <th style="padding:8px;border-bottom:1px solid #eee; text-align:left;">Thời gian</th>
+            <th style="padding:8px;border-bottom:1px solid #eee; text-align:left;">Giá trị</th>
+            <th style="padding:8px;border-bottom:1px solid #eee; text-align:left;">Trạng thái</th>
+          </tr>
+        </thead>
+        <tbody>${rowsHTML}</tbody>
+      </table>
+    </div>
+  `;
+}
 }
 
 closeModal.addEventListener('click', ()=> modalBackdrop.style.display='none');
@@ -601,10 +676,12 @@ modalBackdrop.addEventListener('click', (e)=> { if(e.target===modalBackdrop) mod
 document.querySelectorAll('.card').forEach(card=>{
   card.addEventListener('click', ()=> openModal(card.dataset.type));
 });
+function poi(a,arr){
+  for(let i = 0;i<arr.length;i++){
+    if(arr[i]==a) return i;
+  }
+}
 function recent(a,b) {
-          var date =new Date();
-          var hour =date.getHours();
-          var mins =date.getMinutes();
           let r1 = `<tr><td>${hour + " : " + mins}<td><ta>${a}<ta><td>${b}<td><tr>`;
           recentList.insertAdjacentHTML('beforeend',r1);
 }
@@ -634,20 +711,28 @@ function connectEra(){
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
         if (valueTemp != lastTemp){
+          hourlyData.temp.value.push(valueTemp);
+          hourlyData.temp.time.push(realtime);
           tempEl.innerHTML = `${valueTemp} °C`;
-          recent("Nhiệt độ",valueTemp);
+          recent("Nhiệt độ",`${valueTemp} °C`);
         }
           if (valueHR != lastHr){
+            hourlyData.hr.value.push(valueHR);
+            hourlyData.hr.time.push(realtime);
             hrEl.innerHTML   = `${valueHR} bpm`;
-            recent("Nhịp Tim",valueHR);
+            recent("Nhịp Tim",`${valueHR} bpm`);
           }
           if (valueSPO2 != lastSpo2){
+            hourlyData.spo2.value.push(valueSPO2);
+            hourlyData.spo2.time.push(realtime);
             spo2El.innerHTML = `${valueSPO2} %`;
-            recent("SPO2",valueSPO2);
+            recent("SPO2",`${valueSPO2} %`);
           }
           if (valueBP != lastBp){
+            hourlyData.bp.value.push(valueBP);
+            hourlyData.bp.time.push(realtime);
             bpEl.innerHTML   = `${valueBP} mmHg`;
-            recent("Huyết áp",valueBP);
+            recent("Huyết áp",`${valueBP} mmHg`);
           }
           lastTemp = valueTemp;
           lastHr   = valueHR  ;
@@ -695,3 +780,6 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
+
+
