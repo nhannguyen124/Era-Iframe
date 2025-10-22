@@ -63,7 +63,7 @@
 
     .main{display:flex;gap:18px;align-items:flex-start;margin-top:12px}
     .left{flex:1}
-    .right{width:360px}
+    .right{width:360px;max-width:520px}
 
     table{width:100%;border-collapse:collapse}
     thead th{ text-align:left;color:var(--muted);font-weight:600;padding:10px 8px;border-bottom:1px solid #edf1f4}
@@ -170,17 +170,13 @@
           <button id="profileBtn" class="profile-btn">Hồ sơ</button>
           <div class="device-info">
             <div style="min-width:52px">
-              <small>Thiết bị</small>
               <b id="deviceId">—</b>
             </div>
-            <div style="min-width:56px;text-align:right">
-              <small>Firmware</small>
-              <div style="font-weight:700">—</div>
             </div>
           </div>
           <button id="logoutBtn" class="btn btn-ghost">Đăng xuất</button>
         </div>
-      </div>
+
 
       <div class="grid">
         <div class="card" data-type="hr">
@@ -193,7 +189,7 @@
 
         <div class="card" data-type="spo2">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><div style="font-size:16px">💨 SpO₂</div><div class="sub">%</div></div>
+            <div><div style="font-size:16px">🩸 SpO₂</div><div class="sub">%</div></div>
             <div class="value" id="spo2">--</div>
           </div>
           <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="spo2Time">--</span></div>
@@ -201,7 +197,7 @@
 
         <div class="card" data-type="bp">
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <div><div style="font-size:16px">🩸 Huyết áp</div><div class="sub">mmHg</div></div>
+            <div><div style="font-size:16px">💨 Huyết áp</div><div class="sub">mmHg</div></div>
             <div class="value" id="bp">--</div>
           </div>
           <div style="text-align:right;color:var(--muted);font-size:12px">Cập nhật: <span id="bpTime">--</span></div>
@@ -220,11 +216,6 @@
         <div class="left">
           <div style="background:var(--card);padding:14px;border-radius:12px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-              <div style="font-weight:700">Tổng quan sức khỏe</div>
-              <div style="color:var(--muted);font-size:13px">Dữ liệu thời gian thực</div>
-            </div>
-            <div id="overviewText" style="color:var(--muted)">Nhấn một ô trên để xem chi tiết.</div>
-          </div>
         </div>
 
         <div class="right">
@@ -413,7 +404,7 @@ function applyUserToUI(){
   const p = me.profile || {};
   userGreet.innerText = `Xin chào, ${p.name || cur}`;
   userMeta.innerText = p.age ? `${p.age} tuổi • ${p.gender||''}` : '';
-  deviceIdEl.innerText = (me.deviceId) ? me.deviceId : 'R12M-LOCAL';
+  deviceIdEl.innerText = (me.deviceId) ? me.deviceId : '';
   // apply thresholds if exist
   if(me.settings){ thresholds.spo2_warn = me.settings.thrSpo2 || thresholds.spo2_warn; thresholds.hr_high = me.settings.thrHrHigh || thresholds.hr_high; }
 }
@@ -739,7 +730,6 @@ function connectEra(){
           lastSpo2 = valueSPO2;
           lastBp   = valueBP  ;
           
-
         console.log('Era values:', values);},
         
         })};
