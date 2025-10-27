@@ -787,7 +787,7 @@ function connectEra(){
           lastHr   = valueHR  ;
           lastSpo2 = valueSPO2;
           lastBp   = valueBP  ;
-          analyzeTrends();
+          analyzeTrends(valueHR,valueSPO2,valueBP,value,Temp);
           
         console.log('Era values:', values);},
         
@@ -828,6 +828,7 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
 
 
 
