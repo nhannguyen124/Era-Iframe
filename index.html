@@ -231,6 +231,22 @@
         </div>
       </div>
     </div>
+    <div class="main">
+  <div class="left">
+    <!-- Lần đo gần đây -->
+  </div>
+
+  <div class="right">
+    <!-- 🔹 Khung phân tích sức khỏe -->
+    <div style="background:var(--card);padding:12px;border-radius:12px;box-shadow:0 10px 30px rgba(10,20,40,.04)">
+      <div style="font-weight:700;margin-bottom:8px">Phân tích sức khỏe</div>
+      <div id="analysisBox" style="font-size:14px;color:var(--muted);line-height:1.6">
+        Đang phân tích dữ liệu...
+      </div>
+    </div>
+  </div>
+</div>
+
 
     <!-- modal chart -->
     <div id="modalBackdrop" class="modal-backdrop">
@@ -429,7 +445,38 @@ function openProfile(){
   document.getElementById('pfHistory').value = p.history || '';
   profileBackdrop.style.display = 'flex';
 }
+function analyzeTrends() {
+  const box = document.getElementById("analysisBox");
+  if (!box) return;
 
+  const hr = Number(hrEl.innerText) || 0;
+  const spo2 = Number(spo2El.innerText) || 0;
+  const bp = Number(bpEl.innerText) || 0;
+  const temp = Number(tempEl.innerText) || 0;
+
+  let summary = "";
+
+  // Nhịp tim
+  if (hr > 100) summary += "❤️ Nhịp tim hơi cao, có thể do căng thẳng hoặc vận động gần đây.<br>";
+  else if (hr < 55) summary += "❤️ Nhịp tim thấp, hãy đảm bảo bạn đang nghỉ ngơi đầy đủ.<br>";
+  else summary += "❤️ Nhịp tim ổn định.<br>";
+
+  // SpO2
+  if (spo2 < 94) summary += "🩸 SpO₂ thấp, cần kiểm tra hô hấp hoặc tuần hoàn.<br>";
+  else summary += "🩸 SpO₂ tốt, khả năng oxy hóa bình thường.<br>";
+
+  // Huyết áp
+  if (bp > 140) summary += "💨 Huyết áp cao, nên thư giãn và theo dõi thêm.<br>";
+  else if (bp < 90) summary += "💨 Huyết áp thấp, có thể cần bổ sung nước hoặc ăn nhẹ.<br>";
+  else summary += "💨 Huyết áp trong ngưỡng bình thường.<br>";
+
+  // Nhiệt độ
+  if (temp >= 38) summary += "🌡️ Có dấu hiệu sốt nhẹ, hãy nghỉ ngơi và theo dõi thêm.<br>";
+  else if (temp < 36) summary += "🌡️ Thân nhiệt hơi thấp, nên giữ ấm.<br>";
+  else summary += "🌡️ Nhiệt độ ổn định.<br>";
+
+  box.innerHTML = summary;
+}
 function saveProfileFromForm(){
   const cur = getCurrentUser();
   if(!cur) return;
@@ -465,7 +512,7 @@ function makeHourlySeries(base,variation,min,max,round=0){
 var date =new Date();
 var hour =date.getHours();
 var mins =date.getMinutes();
-var realtime = hour+":"+mins;
+var realtime = hour+";"+mins;
 const hourlyData = {
   hr: {
     value :[],
@@ -476,7 +523,10 @@ const hourlyData = {
     time  :[]
   },
   bp: {
-    value :[],
+    value :{
+      sys:[],
+      dis:[]
+    },
     time  :[]
   },
   temp:{
@@ -764,6 +814,7 @@ function enterDashboard(){
   //setOverviewValues();
   showDashboard();
   connectEra();
+  analyzeTrends();
 }
 
 /* ---------- startup: if already logged in show dashboard ---------- */
@@ -775,7 +826,6 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
-
 
 
 
