@@ -449,34 +449,43 @@ function analyzeTrends() {
   const box = document.getElementById("analysisBox");
   if (!box) return;
 
-  const hr = Number(hrEl.innerText) || 0;
-  const spo2 = Number(spo2El.innerText) || 0;
-  const bp = Number(bpEl.innerText) || 0;
-  const temp = Number(tempEl.innerText) || 0;
+  const hr    = hourlyData.hr.value[-1]  ;
+  const spo2  = hourlyData.spo2.value[-1];
+  const bp    = hourlyData.bp.value[-1]  ;
+  const temp  = hourlyData.temp.value[-1];
 
   let summary = "";
+  let score = 0; // Điểm tổng thể, càng cao càng tốt (tối đa 4)
 
-  // Nhịp tim
+  // ❤️ Nhịp tim
   if (hr > 100) summary += "❤️ Nhịp tim hơi cao, có thể do căng thẳng hoặc vận động gần đây.<br>";
   else if (hr < 55) summary += "❤️ Nhịp tim thấp, hãy đảm bảo bạn đang nghỉ ngơi đầy đủ.<br>";
-  else summary += "❤️ Nhịp tim ổn định.<br>";
+  else { summary += "❤️ Nhịp tim ổn định.<br>"; score++; }
 
-  // SpO2
+  // 🩸 SpO2
   if (spo2 < 94) summary += "🩸 SpO₂ thấp, cần kiểm tra hô hấp hoặc tuần hoàn.<br>";
-  else summary += "🩸 SpO₂ tốt, khả năng oxy hóa bình thường.<br>";
+  else { summary += "🩸 SpO₂ tốt, khả năng oxy hóa bình thường.<br>"; score++; }
 
-  // Huyết áp
+  // 💨 Huyết áp
   if (bp > 140) summary += "💨 Huyết áp cao, nên thư giãn và theo dõi thêm.<br>";
   else if (bp < 90) summary += "💨 Huyết áp thấp, có thể cần bổ sung nước hoặc ăn nhẹ.<br>";
-  else summary += "💨 Huyết áp trong ngưỡng bình thường.<br>";
+  else { summary += "💨 Huyết áp trong ngưỡng bình thường.<br>"; score++; }
 
-  // Nhiệt độ
+  // 🌡️ Nhiệt độ
   if (temp >= 38) summary += "🌡️ Có dấu hiệu sốt nhẹ, hãy nghỉ ngơi và theo dõi thêm.<br>";
   else if (temp < 36) summary += "🌡️ Thân nhiệt hơi thấp, nên giữ ấm.<br>";
-  else summary += "🌡️ Nhiệt độ ổn định.<br>";
+  else { summary += "🌡️ Nhiệt độ ổn định.<br>"; score++; }
 
+  // 🧠 Phân tích chung tổng thể
+  let overview = "";
+  if (score === 4) overview = "🟢 <b>Tình trạng sức khỏe tổng thể: Tốt</b> — các chỉ số đều trong mức an toàn.";
+  else if (score >= 2) overview = "🟡 <b>Tình trạng sức khỏe tổng thể: Trung bình</b> — nên theo dõi thêm một vài chỉ số.";
+  else overview = "🔴 <b>Tình trạng sức khỏe tổng thể: Cần chú ý</b> — có nhiều dấu hiệu bất thường, hãy nghỉ ngơi hoặc kiểm tra y tế.";
+
+  summary += "<hr style='border:none;border-top:1px solid #eee;margin:8px 0'>" + overview;
   box.innerHTML = summary;
 }
+
 function saveProfileFromForm(){
   const cur = getCurrentUser();
   if(!cur) return;
