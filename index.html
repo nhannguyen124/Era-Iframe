@@ -759,6 +759,7 @@ function connectEra(){
         const valueHR   = values[configHR?.id]?.value;
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
+        analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
         if (valueTemp != lastTemp){
           hourlyData.temp.value.push(valueTemp);
           hourlyData.temp.time.push(realtime);
@@ -787,7 +788,6 @@ function connectEra(){
           lastHr   = valueHR  ;
           lastSpo2 = valueSPO2;
           lastBp   = valueBP  ;
-          analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
           
         console.log('Era values:', values);},
         
@@ -811,5 +811,6 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
 
 
