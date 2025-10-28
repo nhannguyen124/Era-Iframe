@@ -426,8 +426,6 @@ function applyUserToUI(){
   userGreet.innerText = `Xin chào, ${p.name || cur}`;
   userMeta.innerText = p.age ? `${p.age} tuổi • ${p.gender||''}` : '';
   deviceIdEl.innerText = (me.deviceId) ? me.deviceId : '';
-  // apply thresholds if exist
-  if(me.settings){ thresholds.spo2_warn = me.settings.thrSpo2 || thresholds.spo2_warn; thresholds.hr_high = me.settings.thrHrHigh || thresholds.hr_high; }
 }
 
 /* ---------- profile save ---------- */
@@ -791,6 +789,7 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
 
 
 
