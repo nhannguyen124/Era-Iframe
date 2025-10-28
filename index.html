@@ -759,6 +759,10 @@ function connectEra(){
         const valueHR   = values[configHR?.id]?.value;
         const valueSPO2 = values[configSPO2?.id]?.value;
         const valueBP   = values[configBP?.id]?.value;
+          lastTemp = valueTemp;
+          lastHr   = valueHR  ;
+          lastSpo2 = valueSPO2;
+          lastBp   = valueBP  ;
         if (valueTemp != lastTemp){
           hourlyData.temp.value.push(valueTemp);
           hourlyData.temp.time.push(realtime);
@@ -787,29 +791,12 @@ function connectEra(){
           lastHr   = valueHR  ;
           lastSpo2 = valueSPO2;
           lastBp   = valueBP  ;
-          analyzeTrends(valueHR,valueSPO2,valueBP,valueTemp);
+          analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
           
         console.log('Era values:', values);},
         
         })};
 
-/* ---------- UI update helpers ---------- */
-function updateHR(v){
-  hrEl.innerText = v;
-  hrTimeEl.innerText = new Date().toTimeString().slice(0,5);
-}
-function updateSpO2(v){
-  spo2El.innerText = `${v}%`;
-  spo2TimeEl.innerText = new Date().toTimeString().slice(0,5);
-}
-function updateBP(s){
-  bpEl.innerText = s;
-  bpTimeEl.innerText = new Date().toTimeString().slice(0,5);
-}
-function updateTemp(t){
-  tempEl.innerText = `${t}°C`;
-  tempTimeEl.innerText = new Date().toTimeString().slice(0,5);
-}
 
 /* ---------- enter dashboard ---------- */
 function enterDashboard(){
@@ -828,11 +815,4 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
-
-
-
-
-
-
-
 
