@@ -497,20 +497,6 @@ function saveProfileFromForm(){
   alert('Đã lưu hồ sơ');
 }
 
-/* ---------- simulated hourly data generator (fallback) ---------- */
-function makeHourlySeries(base,variation,min,max,round=0){
-  const arr=[];
-  for(let h=0;h<24;h++){
-    const trend = Math.sin((h/24)*Math.PI*2)*variation*0.4;
-    const noise = (Math.random()*2-1)*variation;
-    let v = base + trend + noise;
-    v = Math.max(min, Math.min(max, v));
-    if(round) v = Math.round(v);
-    else v = Math.round(v*10)/10;
-    arr.push({time: `${String(h).padStart(2,'0')}:00`, value: v});
-  }
-  return arr;
-}
 
 var date =new Date();
 var hour =date.getHours();
@@ -526,10 +512,7 @@ const hourlyData = {
     time  :[]
   },
   bp: {
-    value :{
-      sys:[],
-      dis:[]
-    },
+    value :[]},
     time  :[]
   },
   temp:{
@@ -537,11 +520,6 @@ const hourlyData = {
     time  :[]
   }
 };
-
-/* ---------- thresholds ---------- */
-const thresholds = { spo2_warn:94, hr_high:100 };
-
-/* ---------- overview population ----------*/
 
 /* ---------- modal chart logic ---------- */
 function statusFor(type, valueObj){
@@ -813,6 +791,7 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
 
 
 
