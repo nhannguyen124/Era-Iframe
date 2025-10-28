@@ -763,6 +763,7 @@ function connectEra(){
           hourlyData.temp.value.push(valueTemp);
           hourlyData.temp.time.push(realtime);
           tempEl.innerHTML = `${valueTemp} °C`;
+          lastTemp = valueTemp;
           recent("Nhiệt độ",`${valueTemp} °C`);
           analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
         }
@@ -770,6 +771,7 @@ function connectEra(){
             hourlyData.hr.value.push(valueHR);
             hourlyData.hr.time.push(realtime);
             hrEl.innerHTML   = `${valueHR} bpm`;
+            lastHr   = valueHR  ;lastHr   = valueHR  ;
             recent("Nhịp Tim",`${valueHR} bpm`);
             analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
           }
@@ -777,6 +779,7 @@ function connectEra(){
             hourlyData.spo2.value.push(valueSPO2);
             hourlyData.spo2.time.push(realtime);
             spo2El.innerHTML = `${valueSPO2} %`;
+            lastSpo2 = valueSPO2;
             recent("SPO2",`${valueSPO2} %`);
             analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
           }
@@ -784,14 +787,10 @@ function connectEra(){
             hourlyData.bp.value.push(valueBP);
             hourlyData.bp.time.push(realtime);
             bpEl.innerHTML   = `${valueBP} mmHg`;
+            lastBp   = valueBP  ;
             recent("Huyết áp",`${valueBP} mmHg`);
             analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
           }
-          lastTemp = valueTemp;
-          lastHr   = valueHR  ;
-          lastSpo2 = valueSPO2;
-          lastBp   = valueBP  ;
-          
         console.log('Era values:', values);},
         
         })};
@@ -814,6 +813,7 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
+
 
 
 
