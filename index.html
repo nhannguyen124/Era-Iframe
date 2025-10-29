@@ -53,7 +53,6 @@
     /* Dashboard */
     .dashboard{display:none;margin-top:8px}
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
-    .device-info{background:var(--card);border-radius:12px;padding:10px 14px;box-shadow:0 6px 18px rgba(20,40,60,.04);display:flex;align-items:center;gap:12px}
 
     .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
     .card{background:var(--card);border-radius:14px;padding:14px;box-shadow:0 10px 30px rgba(10,20,40,.04);cursor:pointer;transition:transform .12s}
@@ -686,7 +685,8 @@ function openModal(type){
     }
   });
   }
-  currentChartObj = new Chart(ctx, {
+  else {
+    currentChartObj = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
@@ -749,6 +749,7 @@ function openModal(type){
       }
     }
   });
+  }
 
   // ----------- BẢNG DỮ LIỆU DƯỚI BIỂU ĐỒ -----------
   const tableWrap = document.getElementById('dataTable');
