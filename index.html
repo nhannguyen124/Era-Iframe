@@ -443,7 +443,7 @@ function openProfile(){
   document.getElementById('pfHistory').value = p.history || '';
   profileBackdrop.style.display = 'flex';
 }
-function analyzeTrends(hr,spo2,bp,temp) {
+function analyzeTrends(hr,spo2,temp,sys,dia) {
   const box = document.getElementById("analysisBox");
   if (!box) return;
   let summary = "";
@@ -459,8 +459,8 @@ function analyzeTrends(hr,spo2,bp,temp) {
   else { summary += "🩸 SpO₂ tốt, khả năng oxy hóa bình thường.<br>"; score++; }
 
   // 💨 Huyết áp
-  if (bp > 140) summary += "💨 Huyết áp cao, nên thư giãn và theo dõi thêm.<br>";
-  else if (bp < 90) summary += "💨 Huyết áp thấp, có thể cần bổ sung nước hoặc ăn nhẹ.<br>";
+  if (sys > 140 && dia > 90 ) summary += "💨 Huyết áp cao, nên thư giãn và theo dõi thêm.<br>";
+  else if (sys < 90 && dia < 60) summary += "💨 Huyết áp thấp, có thể cần bổ sung nước hoặc ăn nhẹ.<br>";
   else { summary += "💨 Huyết áp trong ngưỡng bình thường.<br>"; score++; }
 
   // 🌡️ Nhiệt độ
@@ -510,7 +510,10 @@ const hourlyData = {
     time  :[]
   },
   bp: {
-    value :[],
+    value :{
+      sys:[],
+      dia:[]
+    },
     time  :[]
   },
   temp:{
@@ -571,7 +574,7 @@ function openModal(type){
     unit = 'mmHg';
     color = '#ef4444';
     dataset = hourlyData.bp;
-    upper = 160; lower = 90;
+    uppersys = 140; lowersys = 90; upperdia = 90; lowerdia = 60;
   }
   else if(type === 'temp'){
     title = 'Biểu đồ nhiệt độ cơ thể';
@@ -591,8 +594,98 @@ function openModal(type){
   if(currentChartObj){ currentChartObj.destroy(); currentChartObj = null; }
 
   const ctx = document.getElementById('lineChart').getContext('2d');
-
-  // biểu đồ chính
+  if(type=="bp"){
+    currentChartObj = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "Tâm thu",
+          data: values.sys,
+          borderColor: color,
+          backgroundColor: `${color}33`,
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: color,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: "Tâm trương",
+          data: values.dia,
+          borderColor: "blue",
+          backgroundColor: `blue33`,
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: "blue",
+          pointRadius: 4,
+          pointHoverRadius: 6,
+        },
+        {
+          label: `SYS cao (${uppersys} ${unit})`,
+          data: Array(labels.length).fill(upper),
+          borderColor: 'rgba(255,0,0,0.6)',
+          borderDash: [5,5],
+          borderWidth: 1.5,
+          pointRadius: 0
+        },
+        {
+          label: `SYS thấp (${lowerdia} ${unit})`,
+          data: Array(labels.length).fill(lower),
+          borderColor: 'rgba(0,150,255,0.6)',
+          borderDash: [5,5],
+          borderWidth: 1.5,
+          pointRadius: 0
+        },
+        {
+          label: `DIA cao (${upperdia} ${unit})`,
+          data: Array(labels.length).fill(upper),
+          borderColor: 'rgba(255,0,0,0.6)',
+          borderDash: [5,5],
+          borderWidth: 1.5,
+          pointRadius: 0
+        },
+        {
+          label: `DIA thấp (${lowerdia} ${unit})`,
+          data: Array(labels.length).fill(lower),
+          borderColor: 'rgba(0,150,255,0.6)',
+          borderDash: [5,5],
+          borderWidth: 1.5,
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: { usePointStyle: true, boxWidth: 8, padding: 15 }
+        },
+        tooltip: {
+          enabled: true,
+          callbacks: {
+            label: (ctx) => `${ctx.parsed.y} ${unit} lúc ${ctx.label}`
+          },
+          backgroundColor: 'rgba(0,0,0,0.75)',
+          titleColor: '#fff',
+          bodyColor: '#fff'
+        }
+      },
+      scales: {
+        y: {
+          grid: { color: '#eef2f6' },
+          title: { display: true, text: unit }
+        },
+        x: {
+          grid: { display: false },
+          title: { display: true, text: 'Thời gian' }
+        }
+      }
+    }
+  });
+  }
   currentChartObj = new Chart(ctx, {
     type: 'line',
     data: {
@@ -711,8 +804,8 @@ function recent(a,b) {
           recentList.insertAdjacentHTML('beforeend',r1);
 }
 function connectEra(){
-      let configTemp = null, configSPO2 = null, configHB = null, configBP = null;
-      let lastBp,lastHr,lastTemp,lastSpo2;
+      let configTemp = null, configSPO2 = null, configHB = null, configSYS = null,configDIA = null;
+      let lastsys,lastdia,lastHr,lastTemp,lastSpo2;
       const eraWidget = new EraWidget({
         token: "1ced9c99-1cd3-45f6-98a1-82ea28141f85",
         deviceId: "15794"                             
@@ -727,21 +820,23 @@ function connectEra(){
           configTemp = configuration.realtime_configs[0];
           configHR   = configuration.realtime_configs[1];
           configSPO2 = configuration.realtime_configs[2];
-          configBP   = configuration.realtime_configs[3];
+          configSYS  = configuration.realtime_configs[3];
+          configDIA  = configuration.realtime_configs[4];
           
           console.log('Era configuration', configuration); },
         onValues: (values) => {
         const valueTemp = values[configTemp?.id]?.value;
         const valueHR   = values[configHR?.id]?.value;
         const valueSPO2 = values[configSPO2?.id]?.value;
-        const valueBP   = values[configBP?.id]?.value;
+        const valueSYS   = values[configSYS?.id]?.value;
+        const valueDIA   = values[configDIA?.id]?.value;
         if (valueTemp != lastTemp){
           hourlyData.temp.value.push(valueTemp);
           hourlyData.temp.time.push(realtime);
           tempEl.innerHTML = `${valueTemp} °C`;
           lastTemp = valueTemp;
           recent("Nhiệt độ",`${valueTemp} °C`);
-          analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
+          analyzeTrends(lastHr,lastSpo2,lastTemp,lastsys,lastdia);
         }
           if (valueHR != lastHr){
             hourlyData.hr.value.push(valueHR);
@@ -749,7 +844,7 @@ function connectEra(){
             hrEl.innerHTML   = `${valueHR} bpm`;
             lastHr   = valueHR  ;lastHr   = valueHR  ;
             recent("Nhịp Tim",`${valueHR} bpm`);
-            analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
+            analyzeTrends(lastHr,lastSpo2,lastTemp,lastsys,lastdia);
           }
           if (valueSPO2 != lastSpo2){
             hourlyData.spo2.value.push(valueSPO2);
@@ -757,15 +852,17 @@ function connectEra(){
             spo2El.innerHTML = `${valueSPO2} %`;
             lastSpo2 = valueSPO2;
             recent("SPO2",`${valueSPO2} %`);
-            analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
+            analyzeTrends(lastHr,lastSpo2,lastTemp,lastsys,lastdia);
           }
-          if (valueBP != lastBp){
-            hourlyData.bp.value.push(valueBP);
+          if (valueSYS != lastsys && valueDIA != lastdia){
+            hourlyData.bp.value.sys.push(valueSYS);
+            hourlyData.bp.value.dia.push(valueDIA);
             hourlyData.bp.time.push(realtime);
-            bpEl.innerHTML   = `${valueBP} mmHg`;
-            lastBp   = valueBP  ;
-            recent("Huyết áp",`${valueBP} mmHg`);
-            analyzeTrends(lastHr,lastSpo2,lastBp,lastTemp);
+            bpEl.innerHTML   = `${valueSYS} / ${valueDIA} mmHg`;
+            lastsys = valueSYS  ;
+            lastdia = valueDIA  ;
+            recent("Huyết áp",`${valueSYS} / ${valueDIA} mmHg`);
+            analyzeTrends(lastHr,lastSpo2,lastTemp,lastsys,lastdia);
           }
         console.log('Era values:', values);},
         
@@ -789,9 +886,6 @@ window.addEventListener('load', ()=>{
 <script src="https://www.unpkg.com/@eohjsc/era-widget@1.1.3/src/index.js"></script>
 </body>
 </html>
-
-
-
 
 
 
